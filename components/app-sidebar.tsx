@@ -1,131 +1,65 @@
 "use client";
 
 import * as React from "react";
-import {AudioWaveform, BookOpen, Bot, Command, Frame, GalleryVerticalEnd, Map, PieChart, Settings, Settings2, SquareTerminal} from "lucide-react";
+import {SquareTerminal, ShoppingCart, Users, TrendingUp, Package, AlertCircle, Settings, BarChart3} from "lucide-react";
 
 import {NavMain} from "@/components/nav-main";
-import {NavAccount} from "@/components/nav-account";
 import {NavUser} from "@/components/nav-user";
-import {TeamSwitcher} from "@/components/team-switcher";
 import {Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarRail, useSidebar} from "@/components/ui/sidebar";
 
-import {SidebarTrigger} from "@/components/ui/sidebar";
-
-import {BadgeCheck, Bell, ChevronsUpDown, CreditCard, LogOut, Sparkles} from "lucide-react";
+import {SidebarTrigger, SidebarMenuButton} from "@/components/ui/sidebar";
 import {ThemeToggle} from "./common/ThemeToggle";
 
 import {useEffect, useState} from "react";
 import {createClient} from "@/lib/supabase/client";
 import {LogoutButton} from "./auth/logout-button";
-import {Button} from "./ui/button";
-import { FieldSeparator } from "./ui/field";
+import {Tooltip, TooltipContent, TooltipProvider, TooltipTrigger} from "@/components/ui/tooltip";
+import {Separator} from "@/components/ui/separator";
 
-// This is sample data.
+// Navigation data for single-product ecommerce store
 const data = {
     navMain: [
         {
             title: "Dashboard",
-            url: "#",
+            url: "/admin",
             icon: SquareTerminal,
             isActive: true,
-            items: [
-                {
-                    title: "General",
-                    url: "#",
-                },
-                {
-                    title: "History",
-                    url: "#",
-                },
-                {
-                    title: "Settings",
-                    url: "#",
-                },
-            ],
         },
         {
-            title: "Clients",
-            url: "#",
-            icon: Bot,
-            items: [
-                {
-                    title: "Billing",
-                    url: "#",
-                },
-                {
-                    title: "Explorer",
-                    url: "#",
-                },
-                {
-                    title: "Quantum",
-                    url: "#",
-                },
-            ],
+            title: "Product",
+            url: "/admin/products",
+            icon: Package,
         },
         {
-            title: "Activity",
-            url: "#",
-            icon: BookOpen,
-            items: [
-                {
-                    title: "Introduction",
-                    url: "#",
-                },
-                {
-                    title: "Get Started",
-                    url: "#",
-                },
-                {
-                    title: "Tutorials",
-                    url: "#",
-                },
-                {
-                    title: "Changelog",
-                    url: "#",
-                },
-            ],
+            title: "Orders",
+            url: "/admin/orders",
+            icon: ShoppingCart,
         },
         {
-            title: "Stats",
-            url: "#",
-            icon: Settings2,
-            items: [
-                {
-                    title: "General",
-                    url: "#",
-                },
-                {
-                    title: "Team",
-                    url: "#",
-                },
-                {
-                    title: "Billing",
-                    url: "#",
-                },
-                {
-                    title: "Limits",
-                    url: "#",
-                },
-            ],
+            title: "Customers",
+            url: "/admin/customers",
+            icon: Users,
         },
-    ],
-    account: [
         {
-            name: "Setting",
-            url: "#",
+            title: "Analytics",
+            url: "/admin/analytics",
+            icon: BarChart3,
+        },
+        {
+            title: "Warranty Claims",
+            url: "/admin/warranty",
+            icon: AlertCircle,
+        },
+        {
+            title: "Settings",
+            url: "/admin/settings",
             icon: Settings,
-        },
-        {
-            name: "Other",
-            url: "#",
-            icon: PieChart,
         },
     ],
 };
 
 export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
     const {state} = useSidebar();
-    const [collapsed, setCollapsed] = useState(false);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
     const [fullName, setFullName] = useState<string | null>(null);
@@ -158,34 +92,52 @@ export function AppSidebar({...props}: React.ComponentProps<typeof Sidebar>) {
     const user = {
         name: fullName || "Unknown",
         email: email || "no-email@example.com",
-        avatar: avatarUrl || "/default-avatar.png",
+        avatar: avatarUrl || null,
+        initials: fullName
+            ? fullName
+                  .split(" ")
+                  .map((n) => n[0])
+                  .join("")
+                  .toUpperCase()
+            : "?",
     };
 
     return (
         <Sidebar collapsible="icon" {...props}>
-
-
             <SidebarHeader>
-                <div className={`flex ${state === "expanded" ? "justify-between items-center" : "flex-col items-center gap-2"}`}>
-                  
+                <div className={`flex items-center justify-between px-2 py-4 ${state === "collapsed" ? "flex-col gap-3" : ""}`}>
                     <NavUser user={user} />
-                    <SidebarTrigger className="-ml-6" />
-                    
+                    <SidebarTrigger className="-ml-2" />
                 </div>
             </SidebarHeader>
 
-
-            <FieldSeparator></FieldSeparator>
+            <Separator />
 
             <SidebarContent>
                 <NavMain items={data.navMain} />
-                <NavAccount account={data.account} />
-                <LogoutButton />
             </SidebarContent>
 
-                      <SidebarFooter>
-<ThemeToggle />
-          </SidebarFooter>
+            <Separator />
+
+            <SidebarFooter>
+                <TooltipProvider>
+                    <div className={`flex gap-4 w-full ${state === "collapsed" ? "flex-col items-center" : "flex-row items-start justify-between"}`}>
+
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <LogoutButton />
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Logout</TooltipContent>
+                        </Tooltip>
+                        <Tooltip>
+                            <TooltipTrigger asChild>
+                                <ThemeToggle />
+                            </TooltipTrigger>
+                            <TooltipContent side="right">Toggle theme</TooltipContent>
+                        </Tooltip>
+                    </div>
+                </TooltipProvider>
+            </SidebarFooter>
 
             <SidebarRail />
         </Sidebar>

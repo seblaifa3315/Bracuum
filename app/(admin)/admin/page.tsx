@@ -1,13 +1,8 @@
-import {AppSidebar} from "@/components/app-sidebar";
-import {Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator} from "@/components/ui/breadcrumb";
-import {Separator} from "@/components/ui/separator";
-import {SidebarInset, SidebarProvider, SidebarTrigger} from "@/components/ui/sidebar";
-
 export default function Page() {
     return (
-        <SidebarProvider>
-            <AppSidebar />
-            
-        </SidebarProvider>
+        <div>
+            <h1>Admin Dashboard</h1>
+            {/* Your dashboard content here */}
+        </div>
     );
 }

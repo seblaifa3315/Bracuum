@@ -115,7 +115,7 @@ export function LoginForm2({ className, ...props }: LoginFormProps) {
           {/* RIGHT: IMAGE */}
           <div className="relative hidden md:block bg-muted">
             <img
-              src="https://i.pinimg.com/736x/46/52/a9/4652a93aab6b22cdcd27ee53ae190e22.jpg"
+              src="/bracuum-angle.png"
               alt="Login background"
               className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
             />

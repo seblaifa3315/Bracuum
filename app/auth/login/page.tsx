@@ -19,7 +19,7 @@ export default function LoginPage() {
                     </div>
                 </div>
                 <div className="bg-muted relative hidden lg:block">
-                    <img src="https://i.pinimg.com/736x/46/52/a9/4652a93aab6b22cdcd27ee53ae190e22.jpg" alt="Image" className="absolute inset-0 h-full w-full object-cover brightness-[0.7] dark:brightness-[0.5] dark:grayscale " />
+                    <img src="/bracuum-angle.png" alt="Image" className="absolute inset-0 h-full w-full object-cover brightness-[0.7] dark:brightness-[0.5] dark:grayscale" />
                 </div>
             </div>
 

@@ -51,7 +51,9 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  Product: 'Product'
+  Product: 'Product',
+  Order: 'Order',
+  WarrantyClaim: 'WarrantyClaim'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -72,12 +74,76 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const ProductScalarFieldEnum = {
   id: 'id',
-  bracumm: 'bracumm',
+  name: 'name',
+  description: 'description',
+  price: 'price',
+  sku: 'sku',
+  isActive: 'isActive',
+  preorderEnabled: 'preorderEnabled',
+  preorderDepositAmount: 'preorderDepositAmount',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ProductScalarFieldEnum = (typeof ProductScalarFieldEnum)[keyof typeof ProductScalarFieldEnum]
+
+
+export const OrderScalarFieldEnum = {
+  id: 'id',
+  firstName: 'firstName',
+  lastName: 'lastName',
+  email: 'email',
+  phoneNumber: 'phoneNumber',
+  quantity: 'quantity',
+  productPrice: 'productPrice',
+  subtotal: 'subtotal',
+  taxAmount: 'taxAmount',
+  shippingAmount: 'shippingAmount',
+  totalAmount: 'totalAmount',
+  currency: 'currency',
+  status: 'status',
+  isPreOrder: 'isPreOrder',
+  depositAmount: 'depositAmount',
+  remainingAmount: 'remainingAmount',
+  stripeCheckoutSessionId: 'stripeCheckoutSessionId',
+  stripeDepositPaymentIntentId: 'stripeDepositPaymentIntentId',
+  stripeBalancePaymentIntentId: 'stripeBalancePaymentIntentId',
+  shippingAddress: 'shippingAddress',
+  addressLine1: 'addressLine1',
+  addressLine2: 'addressLine2',
+  city: 'city',
+  state: 'state',
+  zip: 'zip',
+  country: 'country',
+  trackingNumber: 'trackingNumber',
+  shippedAt: 'shippedAt',
+  returnRequestedAt: 'returnRequestedAt',
+  returnReceivedAt: 'returnReceivedAt',
+  refundedAt: 'refundedAt',
+  deliveredAt: 'deliveredAt',
+  warrantyExpiresAt: 'warrantyExpiresAt',
+  customerNotes: 'customerNotes',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type OrderScalarFieldEnum = (typeof OrderScalarFieldEnum)[keyof typeof OrderScalarFieldEnum]
+
+
+export const WarrantyClaimScalarFieldEnum = {
+  id: 'id',
+  orderId: 'orderId',
+  description: 'description',
+  reason: 'reason',
+  status: 'status',
+  adminNotes: 'adminNotes',
+  evidenceUrls: 'evidenceUrls',
+  claimedAt: 'claimedAt',
+  resolvedAt: 'resolvedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WarrantyClaimScalarFieldEnum = (typeof WarrantyClaimScalarFieldEnum)[keyof typeof WarrantyClaimScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -88,10 +154,34 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: 'JsonNull'
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: 'DbNull',
+  JsonNull: 'JsonNull',
+  AnyNull: 'AnyNull'
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

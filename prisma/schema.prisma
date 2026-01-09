@@ -6,7 +6,8 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  output   = "../generated/prisma"
+  engineType = "classic"
 }
 
 datasource db {
@@ -14,3 +15,154 @@ datasource db {
 }
 
 
+//////////////////////
+// PRODUCT
+//////////////////////
+
+model Product {
+  id                     String   @id @default(cuid()) // Primary identifier
+  name                   String                     // Product name (customer-facing)
+  description            String                     // Product description
+  price                  Int                        // Full price in cents (e.g. $100 → 10000)
+  sku                    String?                    // Internal product identifier (optional)
+  isActive               Boolean  @default(true)     // Can the product be sold right now?
+
+  // Pre-order config
+  preorderEnabled        Boolean  @default(false)    // Enable pre-order instead of full purchase
+  preorderDepositAmount  Int?                        // set Pre-order deposit in cents (<= price)
+
+  createdAt              DateTime @default(now())    // Record creation time
+  updatedAt              DateTime @updatedAt         // Last update time
+}
+
+
+//////////////////////
+// ORDER
+//////////////////////
+
+model Order {
+  // Primary identifier
+  id                          String       @id @default(cuid()) // Unique order ID
+
+  // Customer info (snapshot at purchase)
+  firstName                   String                     // Customer first name
+  lastName                    String                     // Customer last name
+  email                       String                     // Customer email
+  phoneNumber                 String?                    // Optional customer phone number
+  quantity                    Int          @default(1)   // Number of items purchased
+
+  // Pricing snapshots (in cents)
+  productPrice                Int                        // Price per unit at purchase
+  subtotal                    Int                        // productPrice * quantity
+  taxAmount                   Int                        // Tax collected
+  shippingAmount              Int                        // Shipping fee charged
+  totalAmount                 Int                        // subtotal + tax + shipping
+  currency                    String @default("usd") @db.VarChar(3) // Currency charged by Stripe
+
+  // Order lifecycle
+  status                      OrderStatus               // Current order status
+  isPreOrder                  Boolean      @default(false) // True if order is a pre-order
+
+  // Pre-order payments
+  depositAmount               Int?                       // Pre-order deposit (cents)
+  remainingAmount             Int?                       // Remaining balance for pre-order
+
+  // Stripe integration
+  stripeCheckoutSessionId      String                     // Stripe Checkout session ID
+  stripeDepositPaymentIntentId String?                    // Stripe payment intent for deposit
+  stripeBalancePaymentIntentId String?                    // Stripe payment intent for final payment (pre-orders)
+
+  // Shipping info
+  // Always store full Stripe object for reliability
+  shippingAddress               Json   // Full Stripe shipping object (immutable snapshot)
+
+  // Optional structured fields for US orders (useful for querying and shipping integrations)
+  addressLine1                  String?
+  addressLine2                  String?
+  city                          String?
+  state                         String?
+  zip                           String?
+  country                       String?
+
+  trackingNumber               String?                    // Carrier tracking number
+  shippedAt                    DateTime?                  // Timestamp when order was shipped
+
+  // Returns & refunds
+  returnRequestedAt            DateTime?                  // Customer requested return
+  returnReceivedAt             DateTime?                  // Seller received returned product
+  refundedAt                   DateTime?                  // Refund processed
+
+  // Warranty
+  deliveredAt                  DateTime?                  // Timestamp when order was delivered
+  warrantyExpiresAt            DateTime?                  // Warranty expiry date (usually deliveredAt + 1 year)
+
+  // Misc
+  customerNotes                String?                    // Optional notes from customer
+
+  // Relations
+  warrantyClaims               WarrantyClaim[]            // Linked warranty claims
+
+  // Timestamps
+  createdAt                    DateTime @default(now())   // Order creation timestamp
+  updatedAt                    DateTime @updatedAt        // Last update timestamp
+
+  // Indexes for fast admin queries
+  @@index([email])
+  @@index([status])
+  @@index([status, isPreOrder])
+}
+
+
+//////////////////////
+// ORDER STATUS
+//////////////////////
+
+enum OrderStatus {
+  NEW
+  PREORDER_PLACED
+  PREORDER_WAITING
+  PAID
+  SHIPPED
+  RETURN_REQUESTED
+  RETURN_RECEIVED
+  REFUNDED
+  CANCELLED
+}
+
+//////////////////////
+// WARRANTY
+//////////////////////
+
+model WarrantyClaim {
+  id            String          @id @default(cuid())
+  orderId       String
+  order         Order           @relation(fields: [orderId], references: [id])
+
+  description   String          // Customer explanation of the issue
+  reason        WarrantyReason? // Optional category
+  status        WarrantyStatus  @default(PENDING)
+
+  adminNotes    String?         // Internal notes
+  evidenceUrls  String[]        // Photos/videos (optional)
+
+  claimedAt     DateTime        @default(now()) // Claim submitted
+  resolvedAt    DateTime?       // Claim resolved
+  updatedAt     DateTime        @updatedAt
+
+  @@unique([orderId])           // Ensures only one warranty claim per order
+}
+
+
+enum WarrantyStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RESOLVED
+}
+
+enum WarrantyReason {
+  DEFECT
+  SHIPPING_DAMAGE
+  MALFUNCTION
+  OTHER
+}
