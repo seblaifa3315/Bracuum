@@ -5,15 +5,12 @@ import { Sun, Moon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 
-export function ThemeToggle() {
+export function ThemeToggle({ showLabel = false }: { showLabel?: boolean }) {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => setMounted(true), []);
 
-  // 👇 CRITICAL: avoid rendering until mounted
   if (!mounted) return null;
 
   const isDark = theme === "dark";
@@ -21,11 +18,13 @@ export function ThemeToggle() {
   return (
     <Button
       variant="outline"
-      size="sm"
+      size={showLabel ? "default" : "icon"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className="w-fit"
+      className={`flex items-center gap-2 ${showLabel ? "flex-1" : ""}`}
+      title="Toggle theme"
     >
-      {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+      {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+      {showLabel && <span className="text-sm font-medium">Theme</span>}
     </Button>
   );
 }

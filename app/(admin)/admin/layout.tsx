@@ -1,12 +1,5 @@
-import {ReactNode} from "react";
-import {AppSidebar} from "@/components/app-sidebar";
-import {SidebarProvider} from "@/components/ui/sidebar";
+import AdminShell from '@/components/admin/AdminShell';
 
-export default function AdminLayout({children}: {children: ReactNode}) {
-    return (
-        <SidebarProvider>
-            <AppSidebar />
-            <div className="w-full">{children}</div>
-        </SidebarProvider>
-    );
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return <AdminShell>{children}</AdminShell>;
 }

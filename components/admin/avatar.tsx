@@ -3,8 +3,8 @@
 type AvatarProps = {
   avatarUrl: string | null;
   email: string | null;
-  size?: number; // optional, default 8 (Tailwind h-8 w-8)
-  className?: string; // optional additional classes
+  size?: number;
+  className?: string; 
 };
 
 export function Avatar({ avatarUrl, email, size = 8, className = "" }: AvatarProps) {

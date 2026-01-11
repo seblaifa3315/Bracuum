@@ -18,15 +18,32 @@ export default function LoginPage() {
                         </div>
                     </div>
                 </div>
-                <div className="bg-muted relative hidden lg:block">
-                    <img src="/bracuum-angle.png" alt="Image" className="absolute inset-0 h-full w-full object-cover brightness-[0.7] dark:brightness-[0.5] dark:grayscale" />
-                </div>
-            </div>
+               <div className="relative hidden lg:flex items-center justify-center overflow-hidden
+  bg-gradient-to-br 
+  from-background via-accent to-secondary
+  dark:from-background dark:via-muted dark:to-secondary">
 
-            <div className="bg-muted flex min-h-svh flex-col items-center justify-center p-6 md:p-10">
-                <div className="w-full max-w-sm md:max-w-4xl">
-                    <LoginForm2 />
-                </div>
+  {/* Soft spotlight glow */}
+  <div className="absolute w-[220px] h-[520px] rounded-full 
+    bg-primary/15 blur-[240px]
+    dark:bg-primary/10">
+  </div>
+
+  {/* Product Image */}
+  <img
+    src="/bracuum-nobackground.png"
+    alt="Bracuum product"
+    className="relative z-10 max-h-[90%] max-w-md object-contain
+      drop-shadow-[0_25px_40px_rgba(0,0,0,0.15)]
+      dark:drop-shadow-[0_25px_40px_rgba(0,0,0,0.5)]"
+  />
+
+  {/* Subtle depth overlay */}
+  <div className="pointer-events-none absolute inset-0 
+    bg-gradient-to-t from-black/30 via-transparent to-transparent
+    dark:from-black/50" />
+</div>
+
             </div>
         </>
     );
