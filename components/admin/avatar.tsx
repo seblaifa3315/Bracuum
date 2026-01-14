@@ -7,7 +7,7 @@ type AvatarProps = {
   className?: string; 
 };
 
-export function Avatar({ avatarUrl, email, size = 8, className = "" }: AvatarProps) {
+export function Avatar({ avatarUrl, email, size = 10, className = "" }: AvatarProps) {
   const dimension = `h-${size} w-${size}`;
 
   return avatarUrl ? (

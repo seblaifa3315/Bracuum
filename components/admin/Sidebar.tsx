@@ -68,7 +68,7 @@ export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemC
         {id: "analytics", label: "Analytics", icon: BarChart3, route: "/analytics"},
         {id: "warranty", label: "Warranty Claim", icon: FileWarning, route: "/warranty"},
         {id: "returns", label: "Returns", icon: RotateCcw, route: "/returns"},
-        {id: "settings", label: "Settings", icon: Settings, route: "/settings"},
+        {id: "account-settings", label: "Account Settings", icon: Settings, route: "/account-settings"},
     ];
 
     return (
@@ -116,7 +116,7 @@ export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemC
             {/* User Section */}
             <div className="p-4 border-t border-sidebar-border">
                 <div className={`flex items-center mb-3 ${isExpanded ? "p-3 rounded-lg bg-sidebar-accent gap-3" : ""}`}>
-                    <Avatar avatarUrl={avatarUrl} email={email} size={10} />
+                    <Avatar avatarUrl={avatarUrl} email={email} size={12} />
                     {isExpanded && (
                         <div className="flex-1 min-w-0">
                             <p className="font-medium text-sm text-sidebar-foreground truncate">{fullName}</p>

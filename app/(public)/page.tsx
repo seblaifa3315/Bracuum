@@ -1,6 +1,7 @@
 import { LandingPage } from "@/components/public/LandingPage";
 import { prisma } from '@/lib/prisma/prisma';
 import type { ProductModel } from '@/lib/prisma/generated/prisma/models/Product';
+import HomeRedirect  from "@/components/public/HomeRedirect";
 
 
 export default async function Home() {
@@ -14,7 +15,7 @@ export default async function Home() {
 
   return (
     <>
-
+      <HomeRedirect />
       <div className="p-8 max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">API Test Page (Server)</h1>
 
