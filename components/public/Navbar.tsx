@@ -19,8 +19,8 @@ const navItems = [
 
 export function Navbar() {
   return (
-    <header className="border-b">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+    <header className="">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4 bg-primary rounded-full">
         
         {/* Logo */}
         <Link href="/" className="text-lg font-semibold">

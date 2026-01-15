@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-const IDLE_TIMEOUT = 30 * 60 * 1000; // 30 minutes
-const WARNING_DURATION = 2 * 60 * 1000; // 2 minutes
+const IDLE_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+const WARNING_DURATION = 1 * 60 * 1000; // 1 minutes
+const MAX_SESSION_AGE = 2 * 24 * 60 * 60 * 1000; // 2 days
+const SESSION_KEY = "session_started_at";
 
 export function IdleLogout() {
   const supabase = createClient();
@@ -14,15 +16,18 @@ export function IdleLogout() {
   const lastActivityRef = useRef(Date.now());
   const [showWarning, setShowWarning] = useState(false);
 
-  // Update activity timestamp
   const registerActivity = () => {
     lastActivityRef.current = Date.now();
     setShowWarning(false);
   };
 
   useEffect(() => {
-    const events = ["mousemove", "keydown", "scroll", "touchstart"];
+    // Store session start time once
+    if (!localStorage.getItem(SESSION_KEY)) {
+      localStorage.setItem(SESSION_KEY, Date.now().toString());
+    }
 
+    const events = ["mousemove", "keydown", "scroll", "touchstart"];
     events.forEach((event) =>
       window.addEventListener(event, registerActivity)
     );
@@ -30,13 +35,23 @@ export function IdleLogout() {
     const interval = setInterval(async () => {
       const idleTime = Date.now() - lastActivityRef.current;
 
+      // HARD EXPIRATION
+      const startedAt = localStorage.getItem(SESSION_KEY);
+      if (startedAt && Date.now() - Number(startedAt) > MAX_SESSION_AGE) {
+        localStorage.removeItem(SESSION_KEY);
+        await supabase.auth.signOut();
+        router.replace("/admin/login");
+        return;
+      }
+
+      // IDLE LOGOUT
       if (idleTime >= IDLE_TIMEOUT) {
         await supabase.auth.signOut();
         router.replace("/admin/login");
       } else if (idleTime >= IDLE_TIMEOUT - WARNING_DURATION) {
         setShowWarning(true);
       }
-    }, 30_000); // check every 30s (not every second)
+    }, 30_000);
 
     return () => {
       events.forEach((event) =>

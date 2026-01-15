@@ -7,10 +7,10 @@ import {ThemeToggle} from "../common/ThemeToggle";
 import {LogoutButton} from "../auth/logout-button";
 import {createClient} from "@/lib/supabase/client";
 import {Avatar} from "./avatar";
-import { useRouter, usePathname } from 'next/navigation';
+import {useRouter, usePathname} from "next/navigation";
 
-// Sidebar Component
-export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemChange: (item: string) => void}) {
+// Sidebar Component with real-time user data sync
+export function Sidebar() {
     const [isExpanded, setIsExpanded] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
@@ -18,6 +18,7 @@ export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemC
 
     const router = useRouter();
     const pathname = usePathname();
+    const supabase = createClient();
 
     useEffect(() => {
         const handleResize = () => {
@@ -33,43 +34,66 @@ export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemC
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
-    const supabase = createClient();
+    // Fetch and update user data
+    const updateUserData = async () => {
+        const {
+            data: {user},
+        } = await supabase.auth.getUser();
 
+        if (!user) return;
+
+        setEmail(user.email ?? null);
+
+        const meta = user.user_metadata as {
+            avatar_url?: string;
+            first_name?: string;
+            last_name?: string;
+        };
+
+        setAvatarUrl(meta?.avatar_url ?? null);
+        setFullName([meta?.first_name, meta?.last_name].filter(Boolean).join(" "));
+    };
+
+    // Set up real-time listener for auth state changes
     useEffect(() => {
-        async function fetchUser() {
-            const {
-                data: {user},
-            } = await supabase.auth.getUser();
+        // Initial fetch
+        updateUserData();
 
-            if (!user) return;
+        // Listen for auth state changes (including user metadata updates)
+        const {
+            data: {subscription},
+        } = supabase.auth.onAuthStateChange((event, session) => {
+            if (event === "USER_UPDATED" || event === "SIGNED_IN") {
+                updateUserData();
+            }
+        });
 
-            setEmail(user.email ?? null);
-
-            const meta = user.user_metadata as {
-                avatar_url?: string;
-                first_name?: string;
-                last_name?: string;
-            };
-
-            if (meta?.avatar_url) setAvatarUrl(meta.avatar_url);
-            setFullName([meta?.first_name, meta?.last_name].filter(Boolean).join(" "));
-        }
-
-        fetchUser();
+        // Cleanup subscription on unmount
+        return () => {
+            subscription.unsubscribe();
+        };
     }, [supabase]);
 
-
-
     const menuItems = [
-        {id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: ""},
-        {id: "product", label: "Product", icon: Package, route: "/product"},
-        {id: "order", label: "Order", icon: ShoppingCart, route: "/order"},
-        {id: "customers", label: "Customers", icon: Users, route: "/customers"},
-        {id: "analytics", label: "Analytics", icon: BarChart3, route: "/analytics"},
-        {id: "warranty", label: "Warranty Claim", icon: FileWarning, route: "/warranty"},
-        {id: "returns", label: "Returns", icon: RotateCcw, route: "/returns"},
-        {id: "account-settings", label: "Account Settings", icon: Settings, route: "/account-settings"},
+        {id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/admin"},
+        {id: "product", label: "Product", icon: Package, route: "/admin/product"},
+        {id: "order", label: "Order", icon: ShoppingCart, route: "/admin/order"},
+        {id: "customers", label: "Customers", icon: Users, route: "/admin/customers"},
+        {id: "analytics", label: "Analytics", icon: BarChart3, route: "/admin/analytics"},
+        {id: "warranty", label: "Warranty Claim", icon: FileWarning, route: "/admin/warranty"},
+        {id: "returns", label: "Returns", icon: RotateCcw, route: "/admin/returns"},
+        {id: "account-settings", label: "Account Settings", icon: Settings, route: "/admin/account-settings"},
     ];
+
+    // Helper function to check if a menu item is active
+    const isItemActive = (itemRoute: string) => {
+        // Exact match for dashboard
+        if (itemRoute === "/admin") {
+            return pathname === "/admin";
+        }
+        // For other routes, check if pathname starts with the route
+        return pathname.startsWith(itemRoute);
+    };
 
     return (
         <div className={`${isExpanded ? "w-64" : "w-20"} bg-sidebar border-r border-sidebar-border transition-all duration-300 flex flex-col relative`}>
@@ -93,15 +117,12 @@ export function Sidebar({activeItem, onItemChange}: {activeItem: string; onItemC
                 <ul className="space-y-1">
                     {menuItems.map((item) => {
                         const Icon = item.icon;
-                        const isActive = activeItem === item.id;
+                        const isActive = isItemActive(item.route);
                         return (
                             <li key={item.id}>
                                 <Button
                                     variant={isActive ? "default" : "ghost"}
-                                    onClick={() => {
-                    onItemChange(item.id);
-                    router.push(`/admin/${item.route}`);
-                  }}
+                                    onClick={() => router.push(item.route)}
                                     className={`w-full ${isExpanded ? "justify-start" : "justify-center"} gap-3 ${isActive ? "bg-sidebar-primary text-sidebar-primary-foreground hover:bg-sidebar-primary/90" : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"}`}
                                 >
                                     <Icon className="w-5 h-5 flex-shrink-0" />

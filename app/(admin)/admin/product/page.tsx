@@ -100,13 +100,13 @@ export default function ProductsAdminPage() {
     }
 
     return (
-        <div className="max-w-3xl mx-auto">
+        <div className="w-full bg-background p-8 overflow-y-auto">
             <div className="mb-8">
                 <h1 className="text-3xl font-bold text-foreground mb-2">Product Settings</h1>
                 <p className="text-muted-foreground">Manage your product details and availability</p>
             </div>
 
-            <form onSubmit={handleUpdateProduct} className="space-y-6">
+            <form onSubmit={handleUpdateProduct} className="space-y-6 max-w-3xl">
                 {/* Product Information Card */}
                 <div className="bg-card border border-border rounded-lg p-6">
                     <div className="flex items-center gap-2 mb-4">

@@ -132,7 +132,7 @@
   --destructive: oklch(0.7 0.22 25);
 
   /* Borders / Inputs */
-  --border: oklch(1 0 0 / 10%);
+  --border: oklch(62.646% 0.25651 29.173);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.7 0.18 255);
 
@@ -156,9 +156,9 @@
 
 
 @layer base {
-  * {
+  /* * {
     @apply border-border outline-ring/50;
-  }
+  } */
   body {
     @apply bg-background text-foreground;
   }

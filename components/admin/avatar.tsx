@@ -1,5 +1,7 @@
 "use client";
 
+import defaultAvatar from "@/assets/defaultAvatar.jpg";
+
 type AvatarProps = {
   avatarUrl: string | null;
   email: string | null;
@@ -10,17 +12,11 @@ type AvatarProps = {
 export function Avatar({ avatarUrl, email, size = 10, className = "" }: AvatarProps) {
   const dimension = `h-${size} w-${size}`;
 
-  return avatarUrl ? (
+  return (
     <img
-      src={avatarUrl}
+      src={avatarUrl || defaultAvatar.src}
       alt="User Avatar"
       className={`rounded-full object-cover cursor-pointer transition-all duration-200 ease-in-out hover:scale-105 hover:shadow-lg ${className} ${dimension}`}
     />
-  ) : (
-    <span
-      className={`flex items-center justify-center rounded-full bg-gray-300 text-xs font-medium text-gray-700 ${className} ${dimension}`}
-    >
-      {email?.[0]?.toUpperCase() ?? "?"}
-    </span>
   );
 }
