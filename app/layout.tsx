@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Geist } from "next/font/google";
+import { Poppins } from "next/font/google";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
@@ -11,7 +11,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"), // change to your real domain later
 
   title: {
-    default: "Bracuum – 2-in-1 Vacuum & Cleaning Solution",
+    default: "Bracuum - 2-in-1 Vacuum & Cleaning Solution",
     template: "%s | Bracuum",
   },
 
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "Bracuum – 2-in-1 Vacuum & Cleaning Solution",
+    title: "Bracuum - 2-in-1 Vacuum & Cleaning Solution",
     description:
       "Experience effortless cleaning with Bracuum, the ultimate 2-in-1 vacuum and brush device for your home.",
     url: "https://yourwebsite.com",
@@ -63,12 +63,12 @@ export const metadata: Metadata = {
   },
 };
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  display: "swap",
+const poppins = Poppins({
+  variable: "--font-poppins",
   subsets: ["latin"],
+  weight: ["100","200","300","400","500","600","700","800","900"], // optional
+  display: "swap",
 });
-
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -76,7 +76,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${geistSans.className} antialiased`}>
+      <body className={`${poppins.className} antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

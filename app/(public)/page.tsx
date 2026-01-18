@@ -1,7 +1,10 @@
-import {LandingPage} from "@/components/public/LandingPage";
 import {prisma} from "@/lib/prisma/prisma";
 import type {ProductModel} from "@/lib/prisma/generated/prisma/models/Product";
 import HomeRedirect from "@/components/public/HomeRedirect";
+import { HeroSection } from "@/components/public/HeroSection";
+import { ProblemSection } from "@/components/public/ProblemSection";
+import { FeaturesSection } from "@/components/public/FeaturesSection";
+import { HowItWorksSection } from "@/components/public/HowItWorksSection";
 
 export default async function Home() {
     let product: ProductModel | null = null;
@@ -14,7 +17,10 @@ export default async function Home() {
     return (
         <>
             <HomeRedirect />
-            <h1>HELLO WORLD</h1>
+            <HeroSection  />
+            <ProblemSection />
+            <FeaturesSection />
+            <HowItWorksSection />
         </>
     );
 }

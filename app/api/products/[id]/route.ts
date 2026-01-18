@@ -20,7 +20,6 @@ export async function PATCH(
 
   // 2️⃣ Admin check
   const user = session.user;
-  console.log('Supabase user:', user);
 
   const isAdmin = user?.user_metadata?.role === 'admin';
   if (!isAdmin) {
@@ -44,7 +43,7 @@ export async function PATCH(
 
     return NextResponse.json(updatedProduct);
   } catch (err) {
-    console.error('Prisma update error:', err);
+
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }

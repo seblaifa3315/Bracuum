@@ -20,7 +20,7 @@ const navItems = [
 export function Navbar() {
   return (
     <header className="">
-      <div className="container mx-auto flex h-16 items-center justify-between px-4 bg-primary rounded-full">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
         
         {/* Logo */}
         <Link href="/" className="text-lg font-semibold">

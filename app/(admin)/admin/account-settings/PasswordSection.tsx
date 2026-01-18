@@ -50,8 +50,15 @@ export function PasswordSection() {
             if (!newPassword) throw new Error("New password is required");
             if (newPassword !== confirmNewPassword) throw new Error("New passwords do not match");
 
-            if (!/^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*]).{8,}$/.test(newPassword)) {
-                throw new Error("New password must be at least 8 characters, include uppercase, number, and special character");
+            const isValidPassword =
+                newPassword.length >= 8 &&
+                /[A-Z]/.test(newPassword) &&
+                /[a-z]/.test(newPassword) &&
+                /[0-9]/.test(newPassword) &&
+                /[!@#$%^&*(),.?":{}|<>]/.test(newPassword);
+
+            if (!isValidPassword) {
+                throw new Error("New password must be at least 8 characters, include uppercase, lowercase, number, and special character");
             }
 
             const {error: updateError} = await supabase.auth.updateUser({
@@ -135,6 +142,7 @@ export function PasswordSection() {
                                 <ul className="text-sm text-muted-foreground space-y-1 ml-4 list-disc">
                                     <li>At least 8 characters long</li>
                                     <li>Contains at least one uppercase letter</li>
+                                    <li>Contains at least one lowercase letter</li>
                                     <li>Contains at least one number</li>
                                     <li>Contains at least one special character</li>
                                 </ul>

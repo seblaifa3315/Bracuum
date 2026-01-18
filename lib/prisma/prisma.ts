@@ -14,7 +14,7 @@ export const prisma =
   globalForPrisma.prisma ??
   new PrismaClient({
     adapter: adapter, // Required in Prisma 7 for direct connections
-    log: ['query'],
+
   });
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
