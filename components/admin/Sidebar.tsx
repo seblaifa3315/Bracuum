@@ -148,10 +148,10 @@ export function Sidebar() {
 
                 {/* Action Buttons */}
                 <div className={`flex w-full gap-2 ${isExpanded ? "flex-row" : "flex-col"}`}>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <ThemeToggle showLabel={isExpanded} />
                     </div>
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                         <LogoutButton showLabel={isExpanded} />
                     </div>
                 </div>

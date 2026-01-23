@@ -31,7 +31,7 @@ export function Navbar2() {
             <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center">
-                    <img src={isDark ? `/logo-no-bg-dark.png` : `/logo-no-bg-light.png`} alt="Bracuum Logo" className="h-32 w-32 mt-2 object-contain hover:scale-105 transition-transform" />
+                    <img src={mounted && isDark ? `/logo-no-bg-dark.png` : `/logo-no-bg-light.png`} alt="Bracuum Logo" className="h-32 w-32 mt-2 object-contain hover:scale-105 transition-transform" />
                 </Link>
 
                 {/* Desktop Navigation */}

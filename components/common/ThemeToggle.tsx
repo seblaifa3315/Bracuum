@@ -20,7 +20,7 @@ export function ThemeToggle({ showLabel = false }: { showLabel?: boolean }) {
       variant="outline"
       size={showLabel ? "default" : "icon"}
       onClick={() => setTheme(isDark ? "light" : "dark")}
-      className={`flex items-center gap-2 ${showLabel ? "flex-1" : ""}`}
+      className={`flex items-center gap-2 ${showLabel ? "w-full" : ""}`}
       title="Toggle theme"
     >
       {isDark ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
