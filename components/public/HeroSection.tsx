@@ -1,115 +1,101 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import {Button} from "@/components/ui/button";
-import {Video, Truck, ShieldCheck, BadgeCheck, Star} from "lucide-react";
-import Image from "next/image";
-import {useState, useEffect} from "react";
-import {useTheme} from "next-themes";
-
-const trustBadges = [
-    {text: "Free Shipping", icon: Truck},
-    {text: "30-Day Guarantee", icon: ShieldCheck},
-    {text: "1-Year Warranty", icon: BadgeCheck},
-];
+import { motion, useScroll, useTransform } from 'framer-motion';
+import { useRef } from 'react';
+import { Button } from '@/components/ui/button';
+import { ChevronDown } from 'lucide-react';
 
 export function HeroSection() {
-    const {theme} = useTheme();
-    const [mounted, setMounted] = useState(false);
+  const ref = useRef(null);
 
-    useEffect(() => setMounted(true), []);
-    const isDark = theme === "dark";
-    return (
-        <>
-        {/* Spacer to account for fixed hero */}
-        <div className="h-screen" />
-        <section className="fixed inset-0 bg-background min-h-screen flex items-center px-6 overflow-hidden -z-10">
-            {/* Subtle background gradient */}
-            <div className="absolute inset-0 bg-gradient-to-br from-accent/5 via-transparent to-primary/5" />
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ['start start', 'end start'],
+  });
 
-            {/* Decorative grid pattern */}
-            {/* <div className="absolute inset-0 bg-[linear-gradient(rgba(0,0,0,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,0,0,0.03)_1px,transparent_1px)] dark:bg-[linear-gradient(rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:60px_60px]" /> */}
+  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-            <div className="max-w-7xl mx-auto w-full flex flex-col-reverse lg:grid lg:grid-cols-2 gap-12 items-center relative z-10">
-                {/* Left Content */}
-                <div className="space-y-8">
-                    {/* Social proof */}
-                    <div className="flex items-center gap-2 animate-fade-in-up" style={{ animationDelay: "0s" }}>
-                        <div className="flex">
-                            {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="size-4 fill-accent2 text-accent2" />
-                            ))}
-                        </div>
-                        <span className="text-sm text-muted-foreground">
-                            Loved by <span className="font-semibold text-foreground">2,500+</span> happy customers
-                        </span>
-                    </div>
+  const scrollToId = (id: string) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
-                    {/* Animated Headline */}
-                    <h1 className="text-5xl md:text-6xl lg:text-7xl font-light leading-tight overflow-hidden">
-                        <span className="block animate-text-reveal" style={{ animationDelay: "0.1s" }}>
-                            <span className="text-foreground">Stop Switching,</span>
-                        </span>
-                        <span className="block animate-text-reveal" style={{ animationDelay: "0.3s" }}>
-                            <span className="text-foreground">Start Cleaning.</span>
-                        </span>
-                    </h1>
+return (
+  <section
+    id="hero"
+    ref={ref}
+    className="relative min-h-screen overflow-hidden"
+  >
+    {/* Video Background */}
+    <motion.div style={{ y }} className="absolute inset-0 z-0">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        preload="auto"
+        className="absolute inset-0 w-full h-full object-cover"
+        // poster="/hero-background-fallback.jpg"
+      >
+        <source src="/hero-background.mp4" type="video/mp4" />
+      </video>
 
-                    <p className="text-lg md:text-xl text-muted-foreground leading-relaxed max-w-xl animate-fade-in-up" style={{ animationDelay: "0.5s" }}>
-                        Tired of juggling a broom and vacuum? Bracuum does both in one sleek tool—saving you time, space, and effort.
-                    </p>
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-black/50" />
+    </motion.div>
 
-                    {/* CTA Buttons */}
-                    <div className="flex flex-row gap-4 animate-fade-in-up" style={{ animationDelay: "0.7s" }}>
-                        <Link href="#buy">
-                            <Button
-                                variant="accent"
-                                className="relative py-6 font-medium text-sm overflow-hidden group hover:scale-105 hover:shadow-lg transition-all duration-300"
-                            >
-                                <span className="relative z-10">Get Yours Now</span>
-                                <span className="absolute inset-0 opacity-0 group-hover:opacity-100 animate-shimmer transition-opacity duration-300" />
-                            </Button>
-                        </Link>
+    {/* Bottom Left Content */}
+    <motion.div
+      style={{ opacity }}
+      className="absolute bottom-48 left-6 sm:left-10 lg:left-32 z-10 max-w-4xl"
+    >
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="text-md sm:text-base uppercase tracking-widest text-white/70 mb-3"
+      >
+        Introducing Bracuum
+      </motion.p>
 
-                        <Button
-                            variant="outlineAccent"
-                            className="py-6 font-medium text-sm gap-3 hover:scale-105 hover:shadow-md transition-all duration-300"
-                            onClick={() => alert("Video modal would open here")}
-                        >
-                            <Video className="size-5 stroke-1" />
-                            Watch demo
-                        </Button>
-                    </div>
+      <motion.h1
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.4 }}
+        className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-8 max-w-3xl leading-tight"
+      >
+        Stop switching tools. Start cleaning smarter. Meet your new floor companion.
+      </motion.h1>
 
-                    {/* Trust Badges with staggered animation */}
-                    <div className="flex flex-col sm:flex-row gap-6 pt-4">
-                        {trustBadges.map((item, i) => (
-                            <div
-                                key={i}
-                                className="flex items-center gap-2 text-muted-foreground font-medium text-sm animate-fade-in-up"
-                                style={{ animationDelay: `${0.9 + i * 0.15}s` }}
-                            >
-                                <item.icon className="size-4 text-accent2" />
-                                {item.text}
-                            </div>
-                        ))}
-                    </div>
-                </div>
+      {/* Buttons */}
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.6 }}
+        className="flex flex-row gap-4"
+      >
+        <Button
+          size="lg"
+          variant="whiteblack"
+          className=" px-8 py-6 text-md shadow-lg hover:shadow-xl transition-all"
+          onClick={() => scrollToId("explore")}
+        >
+          LEARN MORE
+        </Button>
 
-                {/* Right Visual with gentle float */}
-                <div className="relative w-full h-100 lg:h-150 animate-slide-right">
-                    <div className="animate-gentle-float w-full h-full">
-                        <Image
-                            src={isDark ? `/bracuum-nobackground.png` : `/bracuum-nobackground.png`}
-                            alt="Bracuum product"
-                            fill
-                            className="object-contain drop-shadow-[0_0_150px_var(--accent)]"
-                            priority
-                        />
-                    </div>
-                </div>
-            </div>
-        </section>
-        </>
-    );
+        <Button
+          size="lg"
+          variant="blackwhite"
+          className=" px-8 py-6 text-md transition-all"
+          onClick={() => scrollToId("demo")}
+        >
+          WATCH DEMO
+        </Button>
+      </motion.div>
+    </motion.div>
+  </section>
+);
+
+
 }

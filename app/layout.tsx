@@ -1,5 +1,5 @@
 import "./globals.css";
-import { Poppins } from "next/font/google";
+import { Poppins, Orbitron } from "next/font/google";
 import type { Metadata } from "next";
 import { ThemeProvider } from "next-themes";
 
@@ -69,6 +69,14 @@ const poppins = Poppins({
   weight: ["100","200","300","400","500","600","700","800","900"], // optional
   display: "swap",
 });
+
+const orbitron = Orbitron({
+  variable: '--font-orbitron',
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+});
+
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -76,7 +84,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${poppins.className} antialiased`}>
+      <body className={`${poppins.className} ${orbitron.variable} font-sans antialiased`}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
