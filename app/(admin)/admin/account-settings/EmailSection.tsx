@@ -86,9 +86,9 @@ export function EmailSection({initialEmail}: EmailSectionProps) {
                                     disabled={loading} 
                                 />
                             </div>
-                            <div className="bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800 rounded-lg p-4">
-                                <p className="text-sm text-amber-800 dark:text-amber-200 font-medium mb-1">Email Change Process:</p>
-                                <p className="text-sm text-amber-700 dark:text-amber-300">
+                            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                                <p className="text-sm text-amber-800 font-medium mb-1">Email Change Process:</p>
+                                <p className="text-sm text-amber-700">
                                     Changing your email requires confirmation from both your current and new email addresses. You'll receive verification links at both addresses.
                                 </p>
                             </div>

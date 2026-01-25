@@ -1,19 +1,12 @@
 "use client";
 
-import {useState, useEffect} from "react";
+import {useState} from "react";
 import Link from "next/link";
 import {Menu, X} from "lucide-react";
-import {ThemeToggle} from "@/components/common/ThemeToggle";
 import {Button} from "@/components/ui/button";
-import {useTheme} from "next-themes";
 
 export function Navbar2() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    const {theme} = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => setMounted(true), []);
-    const isDark = theme === "dark";
 
     const toggleMenu = () => {
         setIsMenuOpen(!isMenuOpen);
@@ -31,7 +24,7 @@ export function Navbar2() {
             <nav className="container mx-auto flex h-16 items-center justify-between px-4 md:px-6">
                 {/* Logo */}
                 <Link href="/" className="flex items-center">
-                    <img src={mounted && isDark ? `/logo-no-bg-dark.png` : `/logo-no-bg-light.png`} alt="Bracuum Logo" className="h-32 w-32 mt-2 object-contain hover:scale-105 transition-transform" />
+                    <img src="/logo-no-bg-light.png" alt="Bracuum Logo" className="h-32 w-32 mt-2 object-contain hover:scale-105 transition-transform" />
                 </Link>
 
                 {/* Desktop Navigation */}
@@ -55,7 +48,6 @@ export function Navbar2() {
 
                 {/* Desktop Actions */}
                 <div className="hidden md:flex items-center gap-6">
-                    <ThemeToggle />
                     <Button asChild variant="accent" className="px-6 hover:opacity-90 transition-all hover:scale-105 hover:shadow-lg inline-block font-bold">
                         <Link href="/">Buy Now</Link>
                     </Button>
@@ -63,7 +55,6 @@ export function Navbar2() {
 
                 {/* Mobile Menu Toggle */}
                 <div className="flex items-center gap-2 md:hidden">
-                    <ThemeToggle />
                     <button onClick={toggleMenu} className="p-2 text-muted-foreground hover:text-foreground transition-colors" aria-label="Toggle menu">
                         {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                     </button>

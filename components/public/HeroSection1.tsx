@@ -4,8 +4,6 @@ import Link from "next/link";
 import {Button} from "@/components/ui/button";
 import {Video, Truck, ShieldCheck, BadgeCheck, Star} from "lucide-react";
 import Image from "next/image";
-import {useState, useEffect} from "react";
-import {useTheme} from "next-themes";
 
 const trustBadges = [
     {text: "Free Shipping", icon: Truck},
@@ -14,11 +12,6 @@ const trustBadges = [
 ];
 
 export function HeroSection() {
-    const {theme} = useTheme();
-    const [mounted, setMounted] = useState(false);
-
-    useEffect(() => setMounted(true), []);
-    const isDark = theme === "dark";
     return (
         <>
         {/* Spacer to account for fixed hero */}
@@ -98,7 +91,7 @@ export function HeroSection() {
                 <div className="relative w-full h-100 lg:h-150 animate-slide-right">
                     <div className="animate-gentle-float w-full h-full">
                         <Image
-                            src={isDark ? `/bracuum-nobackground.png` : `/bracuum-nobackground.png`}
+                            src="/bracuum-nobackground.png"
                             alt="Bracuum product"
                             fill
                             className="object-contain drop-shadow-[0_0_150px_var(--accent)]"

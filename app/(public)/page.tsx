@@ -5,6 +5,7 @@ import { HeroSection } from "@/components/public/HeroSection";
 import { ProblemSection } from "@/components/public/ProblemSection";
 import { FeaturesSection } from "@/components/public/FeaturesSection";
 import { HowItWorksSection } from "@/components/public/HowItWorksSection";
+import { DemoSection } from "@/components/public/DemoSection";
 
 export default async function Home() {
     let product: ProductModel | null = null;
@@ -21,6 +22,7 @@ export default async function Home() {
             <ProblemSection />
             <FeaturesSection />
             <HowItWorksSection />
+            <DemoSection />
         </>
     );
 }

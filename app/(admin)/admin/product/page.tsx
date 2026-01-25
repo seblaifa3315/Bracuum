@@ -272,7 +272,7 @@ export default function ProductsAdminPage() {
                     </div>
                 )}
                 {success && (
-                    <div className="bg-green-500/10 border border-green-500/20 text-green-600 dark:text-green-400 px-4 py-3 rounded-lg">
+                    <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-4 py-3 rounded-lg">
                         {success}
                     </div>
                 )}

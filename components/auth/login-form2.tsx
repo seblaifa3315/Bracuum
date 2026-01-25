@@ -117,7 +117,7 @@ export function LoginForm2({ className, ...props }: LoginFormProps) {
             <img
               src="/bracuum-angle.png"
               alt="Login background"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className="absolute inset-0 h-full w-full object-cover"
             />
           </div>
         </CardContent>

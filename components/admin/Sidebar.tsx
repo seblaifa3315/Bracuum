@@ -3,7 +3,6 @@
 import React, {useState, useEffect} from "react";
 import {LayoutDashboard, Package, ShoppingCart, Users, BarChart3, FileWarning, RotateCcw, Settings, ChevronLeft} from "lucide-react";
 import {Button} from "@/components/ui/button";
-import {ThemeToggle} from "../common/ThemeToggle";
 import {LogoutButton} from "../auth/logout-button";
 import {createClient} from "@/lib/supabase/client";
 import {Avatar} from "./avatar";
@@ -148,9 +147,6 @@ export function Sidebar() {
 
                 {/* Action Buttons */}
                 <div className={`flex w-full gap-2 ${isExpanded ? "flex-row" : "flex-col"}`}>
-                    <div className="flex-1 min-w-0">
-                        <ThemeToggle showLabel={isExpanded} />
-                    </div>
                     <div className="flex-1 min-w-0">
                         <LogoutButton showLabel={isExpanded} />
                     </div>
