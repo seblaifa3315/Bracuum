@@ -45,7 +45,7 @@ export function ContactSection() {
   };
 
   return (
-    <section id="contact" className="relative py-12 lg:py-16 px-4 sm:px-6 bg-background overflow-hidden">
+    <section id="contact" className="relative py-12 lg:py-16 px-4 sm:px-6 bg-muted/30 overflow-hidden">
 
 
       <div className="max-w-6xl mx-auto w-full relative z-10">
@@ -59,9 +59,9 @@ export function ContactSection() {
         >
           {/* Decorative line with dot */}
                     <div className="flex items-center justify-center gap-3 mb-6">
-                        <div className="h-px w-8 bg-accent2/40" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent2/60" />
-                        <div className="h-px w-8 bg-accent2/40" />
+                        <div className="h-px w-8 bg-accent/40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent/60" />
+                        <div className="h-px w-8 bg-accent/40" />
                     </div>
           <p className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
             Get in Touch

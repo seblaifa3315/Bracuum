@@ -249,7 +249,7 @@ export function HowItWorksSection() {
     return (
         <section
             id="how-it-works"
-            className="relative py-16 md:py-24 px-6 bg-background overflow-hidden"
+            className="relative py-16 md:py-24 px-6 bg-muted/30 overflow-hidden"
         >
             <div ref={ref} className="max-w-5xl mx-auto w-full relative z-10">
                 {/* Header */}
@@ -262,9 +262,9 @@ export function HowItWorksSection() {
                 >
                     {/* Decorative line with dot */}
                     <div className="flex items-center justify-center gap-3 mb-6">
-                        <div className="h-px w-8 bg-accent2/40" />
-                        <div className="w-1.5 h-1.5 rounded-full bg-accent2/60" />
-                        <div className="h-px w-8 bg-accent2/40" />
+                        <div className="h-px w-8 bg-accent/40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent/60" />
+                        <div className="h-px w-8 bg-accent/40" />
                     </div>
                     {/* Section Header */}
                 <div className="text-center mb-20">

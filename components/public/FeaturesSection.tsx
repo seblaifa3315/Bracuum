@@ -218,15 +218,15 @@ export function FeaturesSection() {
             </div>
 
             {/* Quick Stats Bar */}
-            <div className="border-t border-border/30 bg-muted/20">
+            <div className="border-t border-border/30 bg-muted">
                 {/* Top decorative accent */}
-                <div className="flex justify-center -mt-px">
+                {/* <div className="flex justify-center -mt-px">
                     <div className="flex items-center">
                         <div className="h-px w-16 bg-gradient-to-r from-transparent to-accent/40" />
                         <div className="w-2 h-2 rounded-full bg-accent/50 -mt-px" />
                         <div className="h-px w-16 bg-gradient-to-l from-transparent to-accent/40" />
                     </div>
-                </div>
+                </div> */}
                 <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
                         <div className="text-center">

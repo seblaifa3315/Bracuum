@@ -25,7 +25,7 @@ const problems = [
 
 export function ProblemSection() {
     return (
-        <section className="relative py-10 md:py-14 px-6 bg-gradient-to-r from-primary/5 via-background to-accent/5 overflow-hidden">
+        <section className="relative py-10 md:py-14 px-6 bg-muted overflow-hidden">
             <div className="max-w-6xl mx-auto w-full">
                 {/* Decorative line with dot */}
                     <div className="flex items-center justify-center gap-3 mb-6">
