@@ -8,8 +8,13 @@ import {createClient} from "@/lib/supabase/client";
 import {Avatar} from "./avatar";
 import {useRouter, usePathname} from "next/navigation";
 
+type SidebarProps = {
+  activeItem: string
+  onItemChange: React.Dispatch<React.SetStateAction<string>>
+}
+
 // Sidebar Component with real-time user data sync
-export function Sidebar() {
+export function Sidebar({ activeItem, onItemChange }: SidebarProps) {
     const [isExpanded, setIsExpanded] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
     const [email, setEmail] = useState<string | null>(null);
