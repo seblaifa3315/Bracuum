@@ -117,7 +117,7 @@ export function FeaturesSection() {
                         <div className="w-1.5 h-1.5 rounded-full bg-accent/60" />
                         <div className="h-px w-8 bg-accent/40" />
                     </div>
-                    <span className="inline-block text-accent text-xs font-medium tracking-wider uppercase mb-4">
+                    <span className="inline-block text-sm uppercase tracking-widest text-muted-foreground mb-3">
                         Why Bracuum?
                     </span>
                     <h2 className="text-3xl md:text-4xl font-light text-foreground mb-4 leading-tight">

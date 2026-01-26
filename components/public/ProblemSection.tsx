@@ -27,10 +27,10 @@ export function ProblemSection() {
     return (
         <section className="relative py-10 md:py-14 px-6 bg-gradient-to-r from-primary/5 via-background to-accent/5 overflow-hidden">
             <div className="max-w-6xl mx-auto w-full">
-                <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12">
-                    {/* Left side - Headline */}
-                    <div className="md:w-1/3 text-center md:text-left shrink-0">
-                        <p className="text-accent2 text-xs font-semibold tracking-widest uppercase mb-2">
+                <div className="flex flex-col items-center gap-8">
+                    {/* Headline */}
+                    <div className="text-center">
+                        <p className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
                             Sound familiar?
                         </p>
                         <h2 className="text-2xl md:text-3xl font-light text-foreground leading-tight">
@@ -39,33 +39,37 @@ export function ProblemSection() {
                     </div>
 
                     {/* Divider */}
-                    <div className="hidden md:block w-px h-16 bg-border/60" />
+                    <div className="w-16 h-px bg-border/60" />
 
-                    {/* Right side - Problem pills */}
-                    <div className="flex flex-wrap md:flex-nowrap items-center justify-center gap-4 md:gap-6">
+                    {/* Problem pills */}
+                    <div className="flex flex-wrap md:flex-nowrap items-stretch justify-center gap-5">
                         {problems.map((problem, i) => {
                             const isAccent2 = problem.color === "accent2";
                             return (
                                 <div
                                     key={i}
-                                    className="group flex items-center gap-3 bg-card/60 backdrop-blur-sm border border-border/40 rounded-full px-5 py-3 hover:shadow-lg transition-all duration-300 hover:scale-105 cursor-default"
+                                    className={`group relative flex items-center gap-4 bg-card border-l-4 rounded-lg px-5 py-4 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-default w-full md:w-52 ${
+                                        isAccent2
+                                            ? "border-l-accent2 hover:shadow-accent2/20"
+                                            : "border-l-accent hover:shadow-accent/20"
+                                    }`}
                                 >
                                     <div
-                                        className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors duration-300 ${
+                                        className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-300 ${
                                             isAccent2
-                                                ? "bg-accent2/10 group-hover:bg-accent2/20"
-                                                : "bg-accent/10 group-hover:bg-accent/20"
+                                                ? "bg-accent2/15 group-hover:bg-accent2/25"
+                                                : "bg-accent/15 group-hover:bg-accent/25"
                                         }`}
                                     >
                                         <problem.icon
-                                            className={`w-5 h-5 ${isAccent2 ? "text-accent2" : "text-accent"}`}
+                                            className={`w-6 h-6 ${isAccent2 ? "text-accent2" : "text-accent"}`}
                                         />
                                     </div>
                                     <div className="text-left">
-                                        <p className="text-sm font-medium text-foreground leading-tight">
+                                        <p className="text-base font-semibold text-foreground leading-tight">
                                             {problem.title}
                                         </p>
-                                        <p className="text-xs text-muted-foreground">
+                                        <p className="text-sm text-muted-foreground mt-0.5">
                                             {problem.description}
                                         </p>
                                     </div>

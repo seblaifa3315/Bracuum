@@ -13,7 +13,10 @@ export function HeroSection() {
     offset: ['start start', 'end start'],
   });
 
-  const y = useTransform(scrollYProgress, [0, 1], ['0%', '50%']);
+  // Parallax layers - different speeds create depth
+  const backgroundY = useTransform(scrollYProgress, [0, 1], ['0%', '30%']);
+  const backgroundScale = useTransform(scrollYProgress, [0, 1], [1, 1.1]);
+  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '80%']);
   const opacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
   const scrollToId = (id: string) => {
@@ -28,7 +31,7 @@ return (
     className="relative min-h-screen overflow-hidden"
   >
     {/* Video Background */}
-    <motion.div style={{ y }} className="absolute inset-0 z-0">
+    <motion.div style={{ y: backgroundY, scale: backgroundScale }} className="absolute inset-0 z-0">
       <video
         autoPlay
         muted
@@ -47,7 +50,7 @@ return (
 
     {/* Bottom Left Content */}
     <motion.div
-      style={{ opacity }}
+      style={{ opacity, y: contentY }}
       className="absolute bottom-48 left-6 sm:left-10 lg:left-32 z-10 max-w-4xl"
     >
       <motion.p
