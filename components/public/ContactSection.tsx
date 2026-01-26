@@ -81,7 +81,7 @@ export function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="order-2 lg:order-1 flex flex-col"
+            className="order-2 lg:order-1 flex flex-col px-4 lg:pl-12"
           >
             {/* Header */}
             <div className="mb-4">
@@ -190,20 +190,13 @@ export function ContactSection() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.2 }}
-            className="order-1 lg:order-2"
+            className="order-1 lg:order-2 px-4 lg:pl-12"
           >
-            <div className="flex flex-col items-center lg:items-start">
-              {/* Logo */}
-              <div className="mb-4">
-                <img
-                  src="/logo-no-bg-light.png"
-                  alt="Bracuum logo"
-                  className="h-32 sm:h-48 lg:h-56 w-auto"
-                />
-              </div>
-
-              {/* Contact Details */}
-              <div className="space-y-2 w-full max-w-xs lg:max-w-none">
+            {/* Mobile: row layout with contact info left, logo right */}
+            {/* Desktop: column layout with logo on top */}
+            <div className="flex flex-row lg:flex-col items-center sm:items-center lg:items-start gap-4 sm:gap-0 justify-between">
+              {/* Contact Details - appears first (left on mobile, top on tablet+) */}
+              <div className="order-1 lg:order-2 space-y-2 flex-1 sm:flex-none sm:w-full max-w-xs lg:max-w-none">
                 {/* Email */}
                 <a
                   href={`mailto:${contactInfo.email}`}
@@ -246,33 +239,42 @@ export function ContactSection() {
                     <p className="text-sm font-medium text-foreground">{contactInfo.city}</p>
                   </div>
                 </div>
+
+                {/* Social Media - inside contact details on mobile */}
+                <div className="mt-3 pt-3 border-t border-border sm:mt-4 sm:pt-4">
+                  <p className="text-xs text-muted-foreground mb-2">Follow us</p>
+                  <div className="flex gap-2">
+                    {contactInfo.socials.map((social, index) => {
+                      const Icon = social.icon;
+                      return (
+                        <motion.a
+                          key={social.name}
+                          href={social.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          initial={{ opacity: 0, y: 10 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          viewport={{ once: true }}
+                          transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
+                          whileHover={{ y: -3 }}
+                          className="w-9 h-9 rounded-lg bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
+                          aria-label={social.name}
+                        >
+                          <Icon className="w-4 h-4" />
+                        </motion.a>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
 
-              {/* Social Media */}
-              <div className="mt-4 pt-4 border-t border-border w-full max-w-xs lg:max-w-none">
-                <p className="text-xs text-muted-foreground mb-2 text-center lg:text-left">Follow us</p>
-                <div className="flex gap-2 justify-center lg:justify-start">
-                  {contactInfo.socials.map((social, index) => {
-                    const Icon = social.icon;
-                    return (
-                      <motion.a
-                        key={social.name}
-                        href={social.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
-                        whileHover={{ y: -3 }}
-                        className="w-9 h-9 rounded-lg bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
-                        aria-label={social.name}
-                      >
-                        <Icon className="w-4 h-4" />
-                      </motion.a>
-                    );
-                  })}
-                </div>
+              {/* Logo - appears second (right on mobile, top on tablet+) */}
+              <div className="order-2 sm:order-1 flex-shrink-0  mb-16 lg:mb-0">
+                <img
+                  src="/logo-no-bg-light.png"
+                  alt="Bracuum logo"
+                  className="h-42 sm:48 md:52 lg:56 w-auto"
+                />
               </div>
             </div>
           </motion.div>
