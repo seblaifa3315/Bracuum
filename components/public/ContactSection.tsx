@@ -38,86 +38,75 @@ export function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-
-    // TODO: Implement actual form submission (e.g., API call)
     await new Promise((resolve) => setTimeout(resolve, 1000));
-
     setIsSubmitting(false);
     setIsSubmitted(true);
     setFormData({ name: '', email: '', message: '' });
   };
 
   return (
-    <section id="contact" className="relative py-20 md:py-32 px-6 bg-background overflow-hidden">
-      {/* Background decorations */}
-      <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-accent/5" />
-      <div className="absolute top-20 left-10 w-72 h-72 bg-accent/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 right-10 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+    <section id="contact" className="relative py-12 lg:py-16 px-4 sm:px-6 bg-background overflow-hidden">
+
 
       <div className="max-w-6xl mx-auto w-full relative z-10">
-        {/* Section Header */}
+        {/* Section Header - Compact */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.5 }}
+          className="text-center mb-8 lg:mb-10"
         >
-          <span className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
-            Get In Touch
-          </span>
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-light text-foreground mb-6">
+          <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-foreground mb-2">
             Contact Us
           </h2>
-          <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
+          <p className="text-muted-foreground text-sm md:text-base max-w-xl mx-auto">
             Have questions about Bracuum? We'd love to hear from you.
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
           {/* Left Column - Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2 }}
-            className="flex flex-col"
+            transition={{ duration: 0.5, delay: 0.1 }}
+            className="order-2 lg:order-1 flex flex-col"
           >
             {/* Header */}
-            <div className="mb-6">
-              <h3 className="text-2xl font-semibold text-foreground mb-2">Let's talk</h3>
-              <p className="text-muted-foreground">
-                Have a question or want to learn more about Bracuum? Fill out the form and we'll get back to you promptly.
+            <div className="mb-4">
+              <h3 className="text-lg md:text-xl font-semibold text-foreground mb-1">Let's talk</h3>
+              <p className="text-muted-foreground text-sm">
+                Fill out the form and we'll get back to you promptly.
               </p>
             </div>
 
             {isSubmitted ? (
               <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
+                initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
-                className="text-center py-8 flex-1 flex flex-col items-center justify-center"
+                className="text-center py-8"
               >
-                <div className="w-20 h-20 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center mx-auto mb-6 shadow-lg shadow-accent/30">
-                  <Send className="w-9 h-9 text-background" />
+                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-accent to-accent/70 flex items-center justify-center mx-auto mb-4 shadow-lg shadow-accent/30">
+                  <Send className="w-6 h-6 text-background" />
                 </div>
-                <h3 className="text-2xl font-semibold text-foreground mb-3">
-                  Message Sent!
-                </h3>
-                <p className="text-muted-foreground max-w-sm mx-auto">
-                  Thank you for reaching out. We'll get back to you soon.
+                <h3 className="text-lg font-semibold text-foreground mb-2">Message Sent!</h3>
+                <p className="text-muted-foreground text-sm mb-4">
+                  We'll get back to you soon.
                 </p>
                 <button
                   onClick={() => setIsSubmitted(false)}
-                  className="mt-8 px-6 py-2 text-accent hover:text-background hover:bg-accent rounded-full border border-accent transition-all duration-300"
+                  className="px-5 py-1.5 text-sm text-accent hover:text-background hover:bg-accent rounded-full border border-accent transition-all duration-300"
                 >
-                  Send another message
+                  Send another
                 </button>
               </motion.div>
             ) : (
-              <form onSubmit={handleSubmit} className="space-y-5 flex-1 flex flex-col">
+              <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-3">
                 {/* Name Field */}
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="name" className="block text-xs font-medium text-foreground mb-1">
                     Your Name
                   </label>
                   <input
@@ -127,14 +116,13 @@ export function ContactSection() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    placeholder=""
-                    className="w-full px-4 py-3 bg-foreground/5 border border-border/50 rounded-xl text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
+                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
                   />
                 </div>
 
                 {/* Email Field */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="email" className="block text-xs font-medium text-foreground mb-1">
                     Your Email
                   </label>
                   <input
@@ -144,14 +132,13 @@ export function ContactSection() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    placeholder=""
-                    className="w-full px-4 py-3 bg-foreground/5 border border-border/50 rounded-xl text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
+                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
                   />
                 </div>
 
                 {/* Message Field */}
                 <div className="flex-1 flex flex-col">
-                  <label htmlFor="message" className="block text-sm font-medium text-foreground mb-2">
+                  <label htmlFor="message" className="block text-xs font-medium text-foreground mb-1">
                     Your Message
                   </label>
                   <textarea
@@ -160,8 +147,7 @@ export function ContactSection() {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    placeholder=""
-                    className="w-full flex-1 min-h-[120px] px-4 py-3 bg-foreground/5 border border-border/50 rounded-xl text-foreground placeholder:text-muted-foreground/60 focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all resize-none"
+                    className="w-full flex-1 min-h-[60px] px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all resize-none"
                   />
                 </div>
 
@@ -171,17 +157,17 @@ export function ContactSection() {
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full mt-auto py-3 px-6 bg-foreground text-background font-semibold rounded-xl hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3 cursor-pointer"
+                  className="w-full py-2.5 px-6 bg-foreground text-background font-medium rounded-lg hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   {isSubmitting ? (
                     <>
-                      <div className="w-5 h-5 border-2 border-background/30 border-t-background rounded-full animate-spin" />
+                      <div className="w-4 h-4 border-2 border-background/30 border-t-background rounded-full animate-spin" />
                       Sending...
                     </>
                   ) : (
                     <>
                       Send Message
-                      <Send className="w-5 h-5" />
+                      <Send className="w-4 h-4" />
                     </>
                   )}
                 </motion.button>
@@ -191,36 +177,35 @@ export function ContactSection() {
 
           {/* Right Column - Contact Info */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-            className="flex flex-col"
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="order-1 lg:order-2"
           >
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col items-center lg:items-start">
               {/* Logo */}
-              <div className="">
-                
+              <div className="mb-4">
                 <img
-              src="/logo-no-bg-light.png"
-              alt="Bracuum logo"
-              className="h-64 w-aut"
-            />
+                  src="/logo-no-bg-light.png"
+                  alt="Bracuum logo"
+                  className="h-32 sm:h-36 lg:h-44 w-auto"
+                />
               </div>
 
               {/* Contact Details */}
-              <div className="space-y-2">
+              <div className="space-y-2 w-full max-w-xs lg:max-w-none">
                 {/* Email */}
                 <a
                   href={`mailto:${contactInfo.email}`}
-                  className="flex items-center gap-4 group"
+                  className="flex items-center gap-3 group py-1"
                 >
-                  <div className="w-12 h-12 rounded-2xl  flex items-center justify-center  transition-colors">
-                    <Mail className="w-5 h-5 text-accent" />
+                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                    <Mail className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Email</p>
-                    <p className="font-medium text-foreground group-hover:text-accent transition-colors">
+                    <p className="text-xs text-muted-foreground">Email</p>
+                    <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
                       {contactInfo.email}
                     </p>
                   </div>
@@ -229,35 +214,35 @@ export function ContactSection() {
                 {/* Phone */}
                 <a
                   href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
-                  className="flex items-center gap-4 group"
+                  className="flex items-center gap-3 group py-1"
                 >
-                  <div className="w-12 h-12 rounded-2xl  flex items-center justify-center  transition-colors">
-                    <Phone className="w-5 h-5 text-accent" />
+                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                    <Phone className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Phone</p>
-                    <p className="font-medium text-foreground group-hover:text-accent transition-colors">
+                    <p className="text-xs text-muted-foreground">Phone</p>
+                    <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
                       {contactInfo.phone}
                     </p>
                   </div>
                 </a>
 
                 {/* City */}
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl  flex items-center justify-center  transition-colors">
-                    <MapPin className="w-5 h-5 text-accent" />
+                <div className="flex items-center gap-3 py-1">
+                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                    <MapPin className="w-4 h-4 text-accent" />
                   </div>
                   <div>
-                    <p className="text-sm text-muted-foreground">Location</p>
-                    <p className="font-medium text-foreground">{contactInfo.city}</p>
+                    <p className="text-xs text-muted-foreground">Location</p>
+                    <p className="text-sm font-medium text-foreground">{contactInfo.city}</p>
                   </div>
                 </div>
               </div>
 
               {/* Social Media */}
-              <div className="mt-auto pt-8 border-t border-border">
-                <p className="text-sm text-muted-foreground mb-4">Follow us</p>
-                <div className="flex gap-3">
+              <div className="mt-4 pt-4 border-t border-border w-full max-w-xs lg:max-w-none">
+                <p className="text-xs text-muted-foreground mb-2 text-center lg:text-left">Follow us</p>
+                <div className="flex gap-2 justify-center lg:justify-start">
                   {contactInfo.socials.map((social, index) => {
                     const Icon = social.icon;
                     return (
@@ -266,15 +251,15 @@ export function ContactSection() {
                         href={social.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        initial={{ opacity: 0, y: 20 }}
+                        initial={{ opacity: 0, y: 10 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        transition={{ duration: 0.4, delay: 0.5 + index * 0.1 }}
-                        whileHover={{ y: -4 }}
-                        className="w-12 h-12 rounded-2xl bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
+                        transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
+                        whileHover={{ y: -3 }}
+                        className="w-9 h-9 rounded-lg bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
                         aria-label={social.name}
                       >
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-4 h-4" />
                       </motion.a>
                     );
                   })}
