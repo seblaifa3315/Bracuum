@@ -7,6 +7,7 @@ import { FeaturesSection } from "@/components/public/FeaturesSection";
 import { HowItWorksSection } from "@/components/public/HowItWorksSection";
 import { DemoSection } from "@/components/public/DemoSection";
 import { ContactSection } from "@/components/public/ContactSection";
+import { FAQSection } from "@/components/public/FAQSection";
 import { Footer } from "@/components/public/Footer";
 
 export default async function Home() {
@@ -25,6 +26,7 @@ export default async function Home() {
             <FeaturesSection />
             <HowItWorksSection />
             <DemoSection />
+            <FAQSection />
             <ContactSection />
             <Footer />
         </>
