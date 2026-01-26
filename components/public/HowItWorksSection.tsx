@@ -260,10 +260,27 @@ export function HowItWorksSection() {
                     transition={{ duration: 0.5 }}
                     className="text-center mb-14"
                 >
-                    <h2 className="text-3xl md:text-4xl font-light text-foreground">
+                    {/* Decorative line with dot */}
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <div className="h-px w-8 bg-accent2/40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent2/60" />
+                        <div className="h-px w-8 bg-accent2/40" />
+                    </div>
+                    {/* Section Header */}
+                <div className="text-center mb-20">
+                    <span className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
+                        Simple as 1-2-3
+                    </span>
+                    <h2 className="text-3xl md:text-4xl font-light text-foreground mb-4 leading-tight">
                         How It Works
                     </h2>
+                    <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+                        Cleaning has never been this effortless. Three simple steps to a spotless space.
+                    </p>
+                </div>
                 </motion.div>
+
+                
 
                 {/* Steps */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">

@@ -27,13 +27,20 @@ export function ProblemSection() {
     return (
         <section className="relative py-10 md:py-14 px-6 bg-gradient-to-r from-primary/5 via-background to-accent/5 overflow-hidden">
             <div className="max-w-6xl mx-auto w-full">
+                {/* Decorative line with dot */}
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <div className="h-px w-8 bg-accent2/40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent2/60" />
+                        <div className="h-px w-8 bg-accent2/40" />
+                    </div>
                 <div className="flex flex-col items-center gap-8">
+                    
                     {/* Headline */}
                     <div className="text-center">
                         <p className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
                             Sound familiar?
                         </p>
-                        <h2 className="text-2xl md:text-3xl font-light text-foreground leading-tight">
+                        <h2 className="text-3xl md:text-4xl font-light text-foreground mb-4 leading-tight">
                             The cleaning struggle is real.
                         </h2>
                     </div>
