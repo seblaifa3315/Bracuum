@@ -1,11 +1,77 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { useRef } from 'react';
-import { Play } from 'lucide-react';
+import { useRef, useState, useEffect } from 'react';
+import { Play, Pause, Volume2, VolumeX } from 'lucide-react';
 
 export function DemoSection() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isMuted, setIsMuted] = useState(true);
+  const [progress, setProgress] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [currentTime, setCurrentTime] = useState(0);
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause();
+      } else {
+        videoRef.current.play();
+      }
+      setIsPlaying(!isPlaying);
+    }
+  };
+
+  const toggleMute = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted;
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const handleTimeUpdate = () => {
+    if (videoRef.current) {
+      const current = videoRef.current.currentTime;
+      const total = videoRef.current.duration;
+      setCurrentTime(current);
+      setProgress((current / total) * 100);
+    }
+  };
+
+  const handleLoadedMetadata = () => {
+    if (videoRef.current) {
+      setDuration(videoRef.current.duration);
+    }
+  };
+
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (videoRef.current) {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const newTime = (clickX / rect.width) * videoRef.current.duration;
+      videoRef.current.currentTime = newTime;
+    }
+  };
+
+  const formatTime = (time: number) => {
+    const minutes = Math.floor(time / 60);
+    const seconds = Math.floor(time % 60);
+    return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  };
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (video) {
+      video.addEventListener('timeupdate', handleTimeUpdate);
+      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      return () => {
+        video.removeEventListener('timeupdate', handleTimeUpdate);
+        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      };
+    }
+  }, []);
 
   return (
     <section
@@ -42,23 +108,87 @@ export function DemoSection() {
         >
           <video
             ref={videoRef}
-            autoPlay
             muted
-            loop
             playsInline
             preload="auto"
             className="w-full h-full object-cover"
+            onEnded={() => setIsPlaying(false)}
           >
             <source src="/hero-background.mp4" type="video/mp4" />
           </video>
 
           {/* Subtle overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
 
-          {/* Play indicator (decorative) */}
-          <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-            <div className="w-20 h-20 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
-              <Play className="w-8 h-8 text-white fill-white ml-1" />
+          {/* Play/Pause button (center) */}
+          <button
+            onClick={togglePlay}
+            className="absolute inset-0 flex items-center justify-center cursor-pointer"
+          >
+            <div
+              className={`w-20 h-20 rounded-full bg-black/40 backdrop-blur-sm flex items-center justify-center transition-opacity duration-300 ${
+                isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
+              }`}
+            >
+              {isPlaying ? (
+                <Pause className="w-8 h-8 text-white fill-white" />
+              ) : (
+                <Play className="w-8 h-8 text-white fill-white ml-1" />
+              )}
+            </div>
+          </button>
+
+          {/* Controls bar (bottom) */}
+          <div
+            className={`absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/60 to-transparent transition-opacity duration-300 ${
+              isPlaying ? 'opacity-0 group-hover:opacity-100' : 'opacity-100'
+            }`}
+          >
+            {/* Progress bar */}
+            <div
+              onClick={handleSeek}
+              className="w-full h-1 bg-white/30 rounded-full cursor-pointer mb-3 group/progress"
+            >
+              <div
+                className="h-full bg-white rounded-full relative transition-all"
+                style={{ width: `${progress}%` }}
+              >
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 w-3 h-3 bg-white rounded-full opacity-0 group-hover/progress:opacity-100 transition-opacity" />
+              </div>
+            </div>
+
+            {/* Controls row */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                {/* Play/Pause small */}
+                <button
+                  onClick={togglePlay}
+                  className="text-white hover:text-white/80 transition-colors"
+                >
+                  {isPlaying ? (
+                    <Pause className="w-5 h-5 fill-white" />
+                  ) : (
+                    <Play className="w-5 h-5 fill-white" />
+                  )}
+                </button>
+
+                {/* Mute/Unmute */}
+                <button
+                  onClick={toggleMute}
+                  className="text-white hover:text-white/80 transition-colors"
+                >
+                  {isMuted ? (
+                    <VolumeX className="w-5 h-5" />
+                  ) : (
+                    <Volume2 className="w-5 h-5" />
+                  )}
+                </button>
+
+                {/* Time display */}
+                <span className="text-white/90 text-sm">
+                  {formatTime(currentTime)} / {formatTime(duration)}
+                </span>
+              </div>
             </div>
           </div>
         </motion.div>

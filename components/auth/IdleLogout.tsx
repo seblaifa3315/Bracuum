@@ -21,6 +21,16 @@ export function IdleLogout() {
     setShowWarning(false);
   };
 
+  const handleLogout = async () => {
+    localStorage.removeItem(SESSION_KEY);
+    try {
+      await supabase.auth.signOut();
+    } catch {
+      // Network error (e.g., after laptop sleep) - still redirect to login
+    }
+    router.replace("/auth/login");
+  };
+
   useEffect(() => {
     // Store session start time once
     if (!localStorage.getItem(SESSION_KEY)) {
@@ -32,22 +42,30 @@ export function IdleLogout() {
       window.addEventListener(event, registerActivity)
     );
 
+    // Handle visibility change (laptop wake from sleep)
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "visible") {
+        const idleTime = Date.now() - lastActivityRef.current;
+        if (idleTime >= IDLE_TIMEOUT) {
+          handleLogout();
+        }
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
     const interval = setInterval(async () => {
       const idleTime = Date.now() - lastActivityRef.current;
 
       // HARD EXPIRATION
       const startedAt = localStorage.getItem(SESSION_KEY);
       if (startedAt && Date.now() - Number(startedAt) > MAX_SESSION_AGE) {
-        localStorage.removeItem(SESSION_KEY);
-        await supabase.auth.signOut();
-        router.replace("/admin/login");
+        await handleLogout();
         return;
       }
 
       // IDLE LOGOUT
       if (idleTime >= IDLE_TIMEOUT) {
-        await supabase.auth.signOut();
-        router.replace("/admin/login");
+        await handleLogout();
       } else if (idleTime >= IDLE_TIMEOUT - WARNING_DURATION) {
         setShowWarning(true);
       }
@@ -57,6 +75,7 @@ export function IdleLogout() {
       events.forEach((event) =>
         window.removeEventListener(event, registerActivity)
       );
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
       clearInterval(interval);
     };
   }, [router, supabase]);

@@ -6,6 +6,8 @@ import { ProblemSection } from "@/components/public/ProblemSection";
 import { FeaturesSection } from "@/components/public/FeaturesSection";
 import { HowItWorksSection } from "@/components/public/HowItWorksSection";
 import { DemoSection } from "@/components/public/DemoSection";
+import { ContactSection } from "@/components/public/ContactSection";
+import { Footer } from "@/components/public/Footer";
 
 export default async function Home() {
     let product: ProductModel | null = null;
@@ -23,6 +25,8 @@ export default async function Home() {
             <FeaturesSection />
             <HowItWorksSection />
             <DemoSection />
+            <ContactSection />
+            <Footer />
         </>
     );
 }
