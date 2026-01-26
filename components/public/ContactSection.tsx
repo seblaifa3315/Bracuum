@@ -57,6 +57,15 @@ export function ContactSection() {
           transition={{ duration: 0.5 }}
           className="text-center mb-8 lg:mb-10"
         >
+          {/* Decorative line with dot */}
+                    <div className="flex items-center justify-center gap-3 mb-6">
+                        <div className="h-px w-8 bg-accent2/40" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-accent2/60" />
+                        <div className="h-px w-8 bg-accent2/40" />
+                    </div>
+          <p className="text-sm uppercase tracking-widest text-muted-foreground mb-3">
+            Get in Touch
+          </p>
           <h2 className="text-2xl md:text-3xl lg:text-4xl font-light text-foreground mb-2">
             Contact Us
           </h2>
@@ -65,7 +74,7 @@ export function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-stretch">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-24 items-stretch">
           {/* Left Column - Contact Form */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -157,7 +166,7 @@ export function ContactSection() {
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-full py-2.5 px-6 bg-foreground text-background font-medium rounded-lg hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="w-1/2 mt-6 py-2.5 px-6 bg-foreground text-background font-medium rounded-lg hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-sm"
                 >
                   {isSubmitting ? (
                     <>
@@ -189,7 +198,7 @@ export function ContactSection() {
                 <img
                   src="/logo-no-bg-light.png"
                   alt="Bracuum logo"
-                  className="h-32 sm:h-36 lg:h-44 w-auto"
+                  className="h-32 sm:h-48 lg:h-56 w-auto"
                 />
               </div>
 
