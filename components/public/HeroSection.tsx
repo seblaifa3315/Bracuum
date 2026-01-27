@@ -85,7 +85,7 @@ return (
           size="lg"
           variant="whiteblack"
           className=" px-8 py-6 text-md shadow-lg hover:shadow-xl transition-all"
-          onClick={() => scrollToId("explore")}
+          onClick={() => scrollToId("features")}
         >
           LEARN MORE
         </Button>
