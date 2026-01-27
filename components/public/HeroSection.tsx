@@ -32,7 +32,7 @@ return (
   >
     {/* Video Background */}
     <motion.div style={{ y: backgroundY, scale: backgroundScale }} className="absolute inset-0 z-0">
-      <video
+      {/* <video
         autoPlay
         muted
         loop
@@ -42,8 +42,11 @@ return (
         // poster="/hero-background-fallback.jpg"
       >
         <source src="/hero-background.mp4" type="video/mp4" />
-      </video>
-
+      </video> */}
+      <img
+      src="hero-background-fallback.jpg"
+      className="absolute inset-0 w-full h-full object-cover" />
+      
       {/* Dark overlay for readability */}
       <div className="absolute inset-0 bg-black/50" />
     </motion.div>

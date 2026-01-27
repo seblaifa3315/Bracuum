@@ -7,7 +7,7 @@ import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
-  { label: 'Explore', targetId: 'explore' },
+  { label: 'Explore', targetId: 'features' },
   { label: 'Contact Us', targetId: 'contact' },
 ];
 
@@ -69,7 +69,7 @@ export function Navbar() {
                 key={item.targetId}
                 onClick={() => scrollToId(item.targetId)}
                 className={cn(
-                  'text-md font-medium transition-colors hover:opacity-70',
+                  'text-md font-medium transition-colors hover:opacity-70 cursor-pointer',
                   scrolled ? 'text-gray-600' : 'text-white/90'
                 )}
               >
@@ -81,7 +81,7 @@ export function Navbar() {
           {/* Order Now - Right */}
           <div className="hidden md:flex items-center">
             <Link href="/">
-              <button className={`cursor-pointer ${scrolled ? 'text-black' : 'text-white'}`}>
+              <button className={`cursor-pointer  px-2 py-1 rounded-sm ${scrolled ? 'text-black hover:bg-black/5' : 'text-white hover:bg-white/20' }`}>
                 Order Now
               </button>
             </Link>
@@ -124,7 +124,7 @@ export function Navbar() {
                   <button
                     key={item.targetId}
                     onClick={() => scrollToId(item.targetId)}
-                    className="text-base font-medium text-gray-800 text-left py-2 hover:opacity-70 transition-opacity"
+                    className="text-base font-medium text-gray-800 text-left py-2 hover:opacity-70 transition-opacity cursor-pointer"
                   >
                     {item.label}
                   </button>
