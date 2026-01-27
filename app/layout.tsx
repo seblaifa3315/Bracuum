@@ -30,8 +30,8 @@ export const metadata: Metadata = {
   ],
 
   icons: {
-    icon: "/bracuum-fresh.png",
-    shortcut: "/bracuum-fresh.png",
+    icon: "/logo-no-bg-dark.png",
+    shortcut: "/logo-no-bg-dark.png",
   },
 
   openGraph: {
@@ -42,7 +42,7 @@ export const metadata: Metadata = {
     siteName: "Bracuum",
     images: [
       {
-        url: "/bracuum-fresh.png", // becomes absolute using metadataBase
+        url: "/logo-no-bg-dark.png",
         width: 800,
         height: 600,
         alt: "Bracuum Device",
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
     title: "Bracuum - 2-in-1 Vacuum & Cleaning Solution",
     description:
       "Effortless cleaning made easy with Bracuum, the ultimate home cleaning device.",
-    images: ["/bracuum-fresh.png"],
+    images: ["/logo-no-bg-dark.png"],
     creator: "@BracuumOfficial",
   },
 };
