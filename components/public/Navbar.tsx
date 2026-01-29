@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart } from 'lucide-react';
+import { Menu, X, ShoppingCart, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useCart } from '@/lib/context/CartContext';
 
@@ -114,47 +114,102 @@ export function Navbar() {
 
           {/* Cart Button - Right */}
           <div className="hidden md:flex items-center">
-            <button
-              onClick={handleOrderClick}
-              className={`cursor-pointer px-3 py-1.5 rounded-sm transition-colors ${baseTextStyle}`}
-            >
-              {quantity > 0 ? (
+            {quantity > 0 ? (
+              <button
+                onClick={handleOrderClick}
+                className={cn(
+                  'group cursor-pointer px-4 py-2 rounded-md font-medium',
+                  'transition-all duration-200 ease-out',
+                  'hover:scale-[1.02] active:scale-[0.98]',
+                  baseTextStyle,
+                  hoverStyle
+                )}
+              >
                 <span className="flex items-center gap-2">
-                  <ShoppingCart size={18} />
-                  Cart
-                  <span className="bg-black text-white px-2.5 py-0.5 rounded-sm text-sm font-bold">
+                  <ShoppingCart
+                    size={18}
+                    className="transition-transform duration-200 group-hover:-translate-y-0.5"
+                  />
+                  <span>Cart</span>
+                  <span className={cn(
+                    'px-2.5 py-0.5 rounded-md text-sm font-bold',
+                    'transition-all duration-200',
+                    'group-hover:scale-110',
+                    scrolled || open || !isHomepage
+                      ? 'bg-black text-white'
+                      : 'bg-white text-black'
+                  )}>
                     {quantity}
                   </span>
                 </span>
-              ) : (
-                <span className={`cursor-pointer px-3 py-1.5 rounded-sm transition-colors ${hoverStyle}`}>
-                  Order Now
+              </button>
+            ) : (
+              <button
+                onClick={handleOrderClick}
+                className={cn(
+                  'group cursor-pointer px-5 py-2 rounded-md font-medium',
+                  'transition-all duration-200 ease-out',
+                  'hover:scale-[1.02] active:scale-[0.98]',
+                  scrolled || open || !isHomepage
+                    ? 'bg-black text-white hover:bg-gray-800'
+                    : 'bg-white text-black hover:bg-gray-100'
+                )}
+              >
+                <span className="flex items-center gap-1">
+                  <span>Order Now</span>
+                  <ArrowRight
+                    size={16}
+                    className="transition-transform duration-200 group-hover:translate-x-1"
+                  />
                 </span>
-                
-              )}
-            </button>
+              </button>
+            )}
           </div>
 
           {/* Mobile Navigation */}
           <div className="flex md:hidden items-center gap-2">
-            <button
-              onClick={handleOrderClick}
-              className={`cursor-pointer px-3 py-1.5 rounded-sm transition-colors ${baseTextStyle}`}
-            >
-              {quantity > 0 ? (
+            {quantity > 0 ? (
+              <button
+                onClick={handleOrderClick}
+                className={cn(
+                  'group cursor-pointer px-3 py-1.5 rounded-md font-medium',
+                  'transition-all duration-200 ease-out',
+                  'active:scale-[0.98]',
+                  baseTextStyle,
+                  hoverStyle
+                )}
+              >
                 <span className="flex items-center gap-2">
                   <ShoppingCart size={18} />
-                  Cart
-                  <span className="bg-black text-white px-2.5 py-0.5 rounded-sm text-sm font-bold">
+                  <span>Cart</span>
+                  <span className={cn(
+                    'px-2.5 py-0.5 rounded-md text-sm font-bold',
+                    scrolled || open || !isHomepage
+                      ? 'bg-black text-white'
+                      : 'bg-white text-black'
+                  )}>
                     {quantity}
                   </span>
                 </span>
-              ) : (
-                <span className={`cursor-pointer px-3 py-1.5 rounded-sm transition-colors ${hoverStyle}`}>
-                  Order Now
+              </button>
+            ) : (
+              <button
+                onClick={handleOrderClick}
+                className={cn(
+                  'group cursor-pointer px-4 py-1.5 rounded-md font-medium',
+                  'transition-all duration-200 ease-out',
+                  'active:scale-[0.98]',
+                  scrolled || open || !isHomepage
+                    ? 'bg-black text-white'
+                    : 'bg-white text-black'
+                )}
+              >
+                <span className="flex items-center gap-1">
+                  <span>Order Now</span>
+                  <ArrowRight size={14} />
                 </span>
-              )}
-            </button>
+              </button>
+            )}
             <button
               onClick={() => setOpen(!open)}
               className={cn(
