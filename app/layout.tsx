@@ -1,6 +1,7 @@
 import "./globals.css";
 import { Poppins, Orbitron } from "next/font/google";
 import type { Metadata } from "next";
+import { CartProvider } from "@/lib/context/CartContext";
 
 const defaultUrl = process.env.VERCEL_URL
   ? `https://${process.env.VERCEL_URL}`
@@ -84,7 +85,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${poppins.className} ${orbitron.variable} font-sans antialiased`}>
-        {children}
+        <CartProvider>
+          {children}
+        </CartProvider>
       </body>
     </html>
   );
