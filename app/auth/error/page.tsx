@@ -9,7 +9,7 @@ function AuthErrorContent() {
   const error = searchParams?.get("error");
 
   return (
-    <div className="w-full max-w-sm bg-white rounded-lg shadow p-6">
+    <div className="w-full max-w-sm bg-white rounded-ui shadow p-6">
       <div className="flex flex-col items-center gap-4">
         {/* Warning icon */}
         <span className="text-4xl text-yellow-500">⚠️</span>
@@ -26,7 +26,7 @@ function AuthErrorContent() {
 
         <Link
           href="/auth/login"
-          className="mt-4 w-full text-center rounded-md bg-black text-white py-2 px-4 text-sm font-medium hover:bg-gray-900 transition"
+          className="mt-4 w-full text-center rounded-ui bg-black text-white py-2 px-4 text-sm font-medium hover:bg-gray-900 transition"
         >
           Back to Login
         </Link>

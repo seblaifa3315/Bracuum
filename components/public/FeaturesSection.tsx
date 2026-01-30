@@ -78,7 +78,7 @@ function FeatureMedia({
     alt: string;
 }) {
     return (
-        <div className="relative w-full h-full rounded-2xl overflow-hidden group/media">
+        <div className="relative w-full h-full rounded-ui overflow-hidden group/media">
             <Image
                 src={src}
                 alt={alt}
@@ -200,8 +200,8 @@ export function FeaturesSection() {
                                     }`}
                                 >
                                     {/* Decorative corner accents */}
-                                    <div className={`absolute -top-3 -left-3 w-8 h-8 border-t-2 border-l-2 rounded-tl-lg ${isEven ? "border-accent/30" : "border-accent2/30"}`} />
-                                    <div className={`absolute -bottom-3 -right-3 w-8 h-8 border-b-2 border-r-2 rounded-br-lg ${isEven ? "border-accent/30" : "border-accent2/30"}`} />
+                                    <div className={`absolute -top-3 -left-3 w-8 h-8 border-t-2 border-l-2 rounded-tl-ui ${isEven ? "border-accent/30" : "border-accent2/30"}`} />
+                                    <div className={`absolute -bottom-3 -right-3 w-8 h-8 border-b-2 border-r-2 rounded-br-ui ${isEven ? "border-accent/30" : "border-accent2/30"}`} />
 
                                     <div className="relative h-[280px] md:h-[320px]">
                                         <FeatureMedia

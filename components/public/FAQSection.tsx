@@ -59,7 +59,7 @@ function FAQItem({
         >
             <div
                 className={`
-                    relative bg-white border border-border/50 rounded-xl overflow-hidden
+                    relative bg-white border border-border/50 rounded-ui overflow-hidden
                     shadow-sm hover:shadow-md transition-all duration-300
                     ${isOpen ? "shadow-md" : ""}
                 `}

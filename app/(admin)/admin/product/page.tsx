@@ -108,7 +108,7 @@ export default function ProductsAdminPage() {
 
             <form onSubmit={handleUpdateProduct} className="space-y-6 max-w-3xl">
                 {/* Product Information Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
+                <div className="bg-card border border-border rounded-ui p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Package className="w-5 h-5 text-primary" />
                         <h2 className="text-xl font-semibold text-card-foreground">Product Information</h2>
@@ -125,7 +125,7 @@ export default function ProductsAdminPage() {
                                 name="name"
                                 value={formData.name || ""}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                                 placeholder="Enter product name"
                             />
                         </div>
@@ -140,7 +140,7 @@ export default function ProductsAdminPage() {
                                 value={formData.description || ""}
                                 onChange={handleInputChange}
                                 rows={4}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none"
+                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground resize-none"
                                 placeholder="Enter product description"
                             />
                         </div>
@@ -157,7 +157,7 @@ export default function ProductsAdminPage() {
                                     name="sku"
                                     value={formData.sku || ""}
                                     onChange={handleInputChange}
-                                    className="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                    className="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                                     placeholder="Product SKU"
                                 />
                             </div>
@@ -166,7 +166,7 @@ export default function ProductsAdminPage() {
                 </div>
 
                 {/* Pricing Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
+                <div className="bg-card border border-border rounded-ui p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <DollarSign className="w-5 h-5 text-primary" />
                         <h2 className="text-xl font-semibold text-card-foreground">Pricing</h2>
@@ -183,7 +183,7 @@ export default function ProductsAdminPage() {
                                 name="price"
                                 value={formData.price || 0}
                                 onChange={handleInputChange}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                                 min="0"
                             />
                             <p className="text-sm text-muted-foreground mt-1">
@@ -194,14 +194,14 @@ export default function ProductsAdminPage() {
                 </div>
 
                 {/* Pre-order Settings Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
+                <div className="bg-card border border-border rounded-ui p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <Clock className="w-5 h-5 text-primary" />
                         <h2 className="text-xl font-semibold text-card-foreground">Pre-order Settings</h2>
                     </div>
 
                     <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                        <div className="flex items-center justify-between p-4 bg-muted rounded-ui">
                             <div>
                                 <p className="font-medium text-foreground">Enable Pre-orders</p>
                                 <p className="text-sm text-muted-foreground">Allow customers to pre-order this product</p>
@@ -229,7 +229,7 @@ export default function ProductsAdminPage() {
                                     name="preorderDepositAmount"
                                     value={formData.preorderDepositAmount || 0}
                                     onChange={handleInputChange}
-                                    className="w-full px-4 py-2 bg-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                    className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
                                     min="0"
                                 />
                                 <p className="text-sm text-muted-foreground mt-1">
@@ -241,13 +241,13 @@ export default function ProductsAdminPage() {
                 </div>
 
                 {/* Availability Card */}
-                <div className="bg-card border border-border rounded-lg p-6">
+                <div className="bg-card border border-border rounded-ui p-6">
                     <div className="flex items-center gap-2 mb-4">
                         <ToggleLeft className="w-5 h-5 text-primary" />
                         <h2 className="text-xl font-semibold text-card-foreground">Availability</h2>
                     </div>
 
-                    <div className="flex items-center justify-between p-4 bg-muted rounded-lg">
+                    <div className="flex items-center justify-between p-4 bg-muted rounded-ui">
                         <div>
                             <p className="font-medium text-foreground">Product Active</p>
                             <p className="text-sm text-muted-foreground">Make this product visible to customers</p>
@@ -267,12 +267,12 @@ export default function ProductsAdminPage() {
 
                 {/* Alert Messages */}
                 {error && (
-                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-lg">
+                    <div className="bg-destructive/10 border border-destructive/20 text-destructive px-4 py-3 rounded-ui">
                         {error}
                     </div>
                 )}
                 {success && (
-                    <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-4 py-3 rounded-lg">
+                    <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-4 py-3 rounded-ui">
                         {success}
                     </div>
                 )}

@@ -297,7 +297,7 @@ export function HowItWorksSection() {
                                 className="group"
                             >
                                 <div className={`
-                                    relative p-8 rounded-2xl bg-white border border-border/50
+                                    relative p-8 rounded-ui bg-white border border-border/50
                                     shadow-sm hover:shadow-xl transition-all duration-300
                                     overflow-hidden h-full
                                 `}>

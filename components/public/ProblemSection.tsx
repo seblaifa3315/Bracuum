@@ -55,7 +55,7 @@ export function ProblemSection() {
                             return (
                                 <div
                                     key={i}
-                                    className={`group relative flex items-center gap-4 bg-card border-l-4 rounded-lg px-5 py-4 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-default w-full md:w-52 ${
+                                    className={`group relative flex items-center gap-4 bg-card border-l-4 rounded-ui px-5 py-4 shadow-md hover:shadow-xl transition-all duration-300 hover:scale-105 hover:-translate-y-1 cursor-default w-full md:w-52 ${
                                         isAccent2
                                             ? "border-l-accent2/50 hover:shadow-accent2/20"
                                             : "border-l-accent/50 hover:shadow-accent/20"

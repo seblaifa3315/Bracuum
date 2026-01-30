@@ -61,7 +61,7 @@ export function Navbar() {
         scrolled || open || !isHomepage ? 'bg-white shadow-sm' : 'bg-transparent'
       )}
     >
-      <nav className="pl-0 sm:pl-4 lg:pl-26 pr-4 sm:pr-6 lg:pr-8">
+      <nav className="pl-0 sm:pl-4 lg:pl-26 pr-2 sm:pr-6 lg:pr-8">
         <div className="relative flex items-center justify-between h-16 md:h-20">
           {/* Logo - Left */}
           <button
@@ -77,11 +77,11 @@ export function Navbar() {
             <img
               src={scrolled || open || !isHomepage ? `/logo-no-bg-light.png` : `/logo-no-bg-dark.png`}
               alt="Bracuum logo"
-              className="h-16 w-auto"
+              className="h-12 sm:h-16 w-auto"
             />
             <span
               className={cn(
-                'text-lg md:text-xl font-bold tracking-wider transition-colors',
+                'text-xs min-[400px]:text-sm sm:text-lg md:text-xl font-bold tracking-wider transition-colors',
                 scrolled || open || !isHomepage ? 'text-gray-900' : 'text-white'
               )}
               style={{ fontFamily: "'Orbitron', sans-serif" }}
@@ -118,7 +118,7 @@ export function Navbar() {
               <button
                 onClick={handleOrderClick}
                 className={cn(
-                  'group cursor-pointer px-4 py-2 rounded-md font-medium',
+                  'group cursor-pointer px-4 py-2 rounded-ui font-medium',
                   'transition-all duration-200 ease-out',
                   'hover:scale-[1.02] active:scale-[0.98]',
                   baseTextStyle,
@@ -132,7 +132,7 @@ export function Navbar() {
                   />
                   <span>Cart</span>
                   <span className={cn(
-                    'px-2.5 py-0.5 rounded-md text-sm font-bold',
+                    'px-2.5 py-0.5 rounded-ui text-sm font-bold',
                     'transition-all duration-200',
                     'group-hover:scale-110',
                     scrolled || open || !isHomepage
@@ -147,7 +147,7 @@ export function Navbar() {
               <button
                 onClick={handleOrderClick}
                 className={cn(
-                  'group cursor-pointer px-5 py-2 rounded-md font-medium',
+                  'group cursor-pointer px-5 py-2 rounded-ui font-medium',
                   'transition-all duration-200 ease-out',
                   'hover:scale-[1.02] active:scale-[0.98]',
                   scrolled || open || !isHomepage
@@ -167,23 +167,23 @@ export function Navbar() {
           </div>
 
           {/* Mobile Navigation */}
-          <div className="flex md:hidden items-center gap-2">
+          <div className="flex md:hidden items-center gap-1 sm:gap-2">
             {quantity > 0 ? (
               <button
                 onClick={handleOrderClick}
                 className={cn(
-                  'group cursor-pointer px-3 py-1.5 rounded-md font-medium',
+                  'group cursor-pointer px-2 sm:px-3 py-1.5 rounded-ui font-medium text-sm sm:text-base',
                   'transition-all duration-200 ease-out',
                   'active:scale-[0.98]',
                   baseTextStyle,
                   hoverStyle
                 )}
               >
-                <span className="flex items-center gap-2">
-                  <ShoppingCart size={18} />
-                  <span>Cart</span>
+                <span className="flex items-center gap-1.5 sm:gap-2">
+                  <ShoppingCart size={16} className="sm:w-[18px] sm:h-[18px]" />
+                  <span className="hidden min-[400px]:inline">Cart</span>
                   <span className={cn(
-                    'px-2.5 py-0.5 rounded-md text-sm font-bold',
+                    'px-1.5 sm:px-2.5 py-0.5 rounded-ui text-xs sm:text-sm font-bold',
                     scrolled || open || !isHomepage
                       ? 'bg-black text-white'
                       : 'bg-white text-black'
@@ -196,7 +196,7 @@ export function Navbar() {
               <button
                 onClick={handleOrderClick}
                 className={cn(
-                  'group cursor-pointer px-4 py-1.5 rounded-md font-medium',
+                  'group cursor-pointer px-2.5 sm:px-4 py-1.5 rounded-ui font-medium text-sm sm:text-base',
                   'transition-all duration-200 ease-out',
                   'active:scale-[0.98]',
                   scrolled || open || !isHomepage
@@ -205,7 +205,7 @@ export function Navbar() {
                 )}
               >
                 <span className="flex items-center gap-1">
-                  <span>Order Now</span>
+                  <span>Order</span>
                   <ArrowRight size={14} />
                 </span>
               </button>

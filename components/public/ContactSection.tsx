@@ -125,7 +125,7 @@ export function ContactSection() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
+                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-ui text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
                   />
                 </div>
 
@@ -141,7 +141,7 @@ export function ContactSection() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
+                    className="w-full px-3 py-2 bg-foreground/5 border border-border/50 rounded-ui text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all"
                   />
                 </div>
 
@@ -156,7 +156,7 @@ export function ContactSection() {
                     value={formData.message}
                     onChange={handleChange}
                     required
-                    className="w-full flex-1 min-h-[60px] px-3 py-2 bg-foreground/5 border border-border/50 rounded-lg text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all resize-none"
+                    className="w-full flex-1 min-h-[60px] px-3 py-2 bg-foreground/5 border border-border/50 rounded-ui text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-accent/30 focus:border-accent focus:bg-background transition-all resize-none"
                   />
                 </div>
 
@@ -166,7 +166,7 @@ export function ContactSection() {
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.01 }}
                   whileTap={{ scale: 0.99 }}
-                  className="w-1/2 mt-6 py-2.5 px-6 bg-foreground text-background font-medium rounded-lg hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-sm"
+                  className="w-full sm:w-1/2 mt-6 py-2.5 px-6 bg-foreground text-background font-medium rounded-ui hover:bg-foreground/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer text-sm whitespace-nowrap"
                 >
                   {isSubmitting ? (
                     <>
@@ -202,7 +202,7 @@ export function ContactSection() {
                   href={`mailto:${contactInfo.email}`}
                   className="flex items-center gap-3 group py-1"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                  <div className="w-9 h-9 rounded-ui bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                     <Mail className="w-4 h-4 text-accent" />
                   </div>
                   <div>
@@ -218,7 +218,7 @@ export function ContactSection() {
                   href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
                   className="flex items-center gap-3 group py-1"
                 >
-                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
+                  <div className="w-9 h-9 rounded-ui bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
                     <Phone className="w-4 h-4 text-accent" />
                   </div>
                   <div>
@@ -231,7 +231,7 @@ export function ContactSection() {
 
                 {/* City */}
                 <div className="flex items-center gap-3 py-1">
-                  <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                  <div className="w-9 h-9 rounded-ui bg-accent/10 flex items-center justify-center">
                     <MapPin className="w-4 h-4 text-accent" />
                   </div>
                   <div>
@@ -257,7 +257,7 @@ export function ContactSection() {
                           viewport={{ once: true }}
                           transition={{ duration: 0.3, delay: 0.3 + index * 0.1 }}
                           whileHover={{ y: -3 }}
-                          className="w-9 h-9 rounded-lg bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
+                          className="w-9 h-9 rounded-ui bg-foreground/5 border border-border/50 flex items-center justify-center text-foreground hover:bg-foreground hover:text-background transition-all duration-300"
                           aria-label={social.name}
                         >
                           <Icon className="w-4 h-4" />
@@ -268,12 +268,12 @@ export function ContactSection() {
                 </div>
               </div>
 
-              {/* Logo - appears second (right on mobile, top on tablet+) */}
-              <div className="order-2 sm:order-1 flex-shrink-0  mb-16 lg:mb-0">
+              {/* Logo - hidden on small phones, appears on sm+ */}
+              <div className="hidden sm:block order-2 sm:order-1 flex-shrink-0 mb-16 lg:mb-0">
                 <img
                   src="/logo-no-bg-light.png"
                   alt="Bracuum logo"
-                  className="h-42 sm:48 md:52 lg:56 w-auto"
+                  className="h-48 md:h-52 lg:h-56 w-auto"
                 />
               </div>
             </div>

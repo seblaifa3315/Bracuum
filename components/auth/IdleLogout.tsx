@@ -84,7 +84,7 @@ export function IdleLogout() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-      <div className="rounded-xl bg-white p-6 shadow-lg">
+      <div className="rounded-ui bg-white p-6 shadow-lg">
         <h2 className="text-lg font-semibold">Session expiring</h2>
         <p className="mt-2 text-sm text-gray-600">
           You've been inactive. You will be logged out in 2 minutes.
@@ -92,7 +92,7 @@ export function IdleLogout() {
 
         <button
           onClick={registerActivity}
-          className="mt-4 rounded-md bg-black px-4 py-2 text-white"
+          className="mt-4 rounded-ui bg-black px-4 py-2 text-white"
         >
           Stay logged in
         </button>

@@ -36,7 +36,7 @@ export default function Cart() {
     return (
       <div className="pt-24 lg:pt-32 px-4 max-w-3xl mx-auto">
         <h1 className="text-4xl md:text-5xl font-light mb-8">Cart</h1>
-        <div className="border border-gray-200 rounded-md p-12 text-center">
+        <div className="border border-gray-200 rounded-ui p-12 text-center">
           <div className="w-20 h-20 mx-auto mb-6 bg-gray-100 rounded-full flex items-center justify-center">
             <ShoppingBag size={32} className="text-gray-400" />
           </div>
@@ -44,7 +44,7 @@ export default function Cart() {
           <p className="text-gray-500 mb-8">Looks like you haven't added anything yet.</p>
           <button
             onClick={addToCart}
-            className="inline-block bg-black text-white px-8 py-3 rounded-sm font-medium tracking-wide hover:bg-transparent hover:text-black border border-black transition-colors cursor-pointer"
+            className="inline-block bg-black text-white px-8 py-3 rounded-ui font-medium tracking-wide hover:bg-transparent hover:text-black border border-black transition-colors cursor-pointer"
           >
             Order Now
           </button>
@@ -58,7 +58,7 @@ export default function Cart() {
       <h1 className="text-4xl md:text-5xl font-light mb-8">Cart</h1>
 
       {/* Product Card */}
-      <div className="border border-gray-200 rounded-md overflow-hidden">
+      <div className="border border-gray-200 rounded-ui overflow-hidden">
         <div className="p-6">
           {/* Product Info */}
           <div className="flex gap-4 mb-4">
@@ -66,7 +66,7 @@ export default function Cart() {
             <img
               src="/a.jpg"
               alt={product.name}
-              className="w-24 h-24 object-cover rounded-md flex-shrink-0"
+              className="w-24 h-24 object-cover rounded-ui flex-shrink-0"
             />
 
             {/* Product Details */}
@@ -78,7 +78,7 @@ export default function Cart() {
 
           {/* Max Quantity Warning */}
           {showMaxWarning && (
-            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-sm">
+            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-ui text-amber-800 text-sm">
               You can't order more than {MAX_QUANTITY} items at a time.
             </div>
           )}
@@ -87,7 +87,7 @@ export default function Cart() {
           <div className="flex items-center justify-between mb-6">
             <div className="flex items-center gap-3">
               {/* Quantity Controls */}
-              <div className="flex items-center border border-gray-300 rounded-lg">
+              <div className="flex items-center border border-gray-300 rounded-ui">
                 <button
                   onClick={() => updateQuantity(quantity - 1)}
                   className="px-3 py-2 hover:bg-gray-50 transition-colors text-gray-500 cursor-pointer"
@@ -114,7 +114,7 @@ export default function Cart() {
               {/* Delete Button */}
               <button
                 onClick={clearCart}
-                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors cursor-pointer"
+                className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-ui transition-colors cursor-pointer"
                 aria-label="Remove item"
               >
                 <Trash2 size={18} />
@@ -128,7 +128,7 @@ export default function Cart() {
           </div>
 
           {/* Info Box */}
-          <div className="bg-gray-50 rounded-xl p-5 space-y-4">
+          <div className="bg-gray-50 rounded-ui p-5 space-y-4">
             <div className="flex items-start gap-3">
               <Truck size={18} className="text-gray-500 mt-0.5 flex-shrink-0" />
               <p className="text-sm">
@@ -166,7 +166,7 @@ export default function Cart() {
       </div>
 
       {/* Checkout Button */}
-      <button className="w-full mt-6 border border-black bg-black text-white py-4 rounded-sm font-medium tracking-wide hover:bg-transparent hover:text-black transition-colors cursor-pointer">
+      <button className="w-full mt-6 border border-black bg-black text-white py-4 rounded-ui font-medium tracking-wide hover:bg-transparent hover:text-black transition-colors cursor-pointer">
         CONTINUE TO CHECKOUT
       </button>
     </div>

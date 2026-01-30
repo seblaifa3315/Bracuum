@@ -110,7 +110,7 @@ export function DemoSection() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="relative aspect-video rounded-2xl overflow-hidden shadow-2xl group"
+          className="relative aspect-video rounded-ui overflow-hidden shadow-2xl group"
         >
           <video
             ref={videoRef}
@@ -137,9 +137,9 @@ export function DemoSection() {
               }`}
             >
               {isPlaying ? (
-                <Pause className="w-8 h-8 text-white fill-white" />
+                <Pause className="w-8 h-8 text-white fill-white hover:scale-105 transition-all duration-100" />
               ) : (
-                <Play className="w-8 h-8 text-white fill-white ml-1" />
+                <Play className="w-8 h-8 text-white fill-white ml-1 hover:scale-105 transition-all duration-100" />
               )}
             </div>
           </button>
