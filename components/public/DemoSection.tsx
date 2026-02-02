@@ -100,7 +100,7 @@ export function DemoSection() {
             Watch the Bracuum Demo
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Experience how Bracuum seamlessly transitions between sweeping and vacuuming in one fluid motion.
+            Watch the twist-grip mechanism in action. Sweep, lift, vacuum—debris shoots straight up into the canister in seconds.
           </p>
         </motion.div>
 

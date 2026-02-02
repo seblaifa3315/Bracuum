@@ -222,21 +222,21 @@ const steps = [
     {
         number: "01",
         title: "Sweep",
-        description: "Glide across any surface. Bristles gather everything in seconds.",
+        description: "Sweep debris into a pile. The intake nozzle stays hidden within the 3-inch bristles.",
         Animation: SweepAnimation,
         color: "accent",
     },
     {
         number: "02",
-        title: "Vacuum",
-        description: "One click. Powerful suction captures everything instantly.",
+        title: "Twist & Lift",
+        description: "Quarter-turn the grip collar clockwise. It rises with your hand, lifting the bristles off the floor.",
         Animation: VacuumAnimation,
         color: "accent2",
     },
     {
         number: "03",
-        title: "Done",
-        description: "No dustpan, no switching. Empty and go.",
+        title: "Vacuum",
+        description: "Press the power button. Debris shoots straight up into the canister in 2-3 seconds. Release and repeat.",
         Animation: DoneAnimation,
         color: "accent",
     },
@@ -367,7 +367,7 @@ export function HowItWorksSection() {
                     transition={{ duration: 0.5, delay: 0.6 }}
                     className="text-center mt-12 text-sm text-muted-foreground tracking-wide"
                 >
-                    No bending · No switching · No hassle
+                    No dustpan · No bending · One fluid motion
                 </motion.p>
             </div>
         </section>

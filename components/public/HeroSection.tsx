@@ -62,7 +62,7 @@ return (
         transition={{ duration: 0.8, delay: 0.2 }}
         className="text-md sm:text-base uppercase tracking-widest text-white/70 mb-3"
       >
-        Introducing Bracuum
+        Introducing Bracuum V1
       </motion.p>
 
       <motion.h1
@@ -71,7 +71,7 @@ return (
         transition={{ duration: 0.8, delay: 0.4 }}
         className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-8 max-w-3xl leading-tight"
       >
-        Stop switching tools. Start cleaning smarter. Meet your new floor companion.
+        The cordless broom that vacuums. No dustpan needed. Ever.
       </motion.h1>
 
       {/* Buttons */}

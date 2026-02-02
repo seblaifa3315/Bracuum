@@ -4,20 +4,20 @@ import { Clock, Package, Frown } from "lucide-react";
 
 const problems = [
     {
-        title: "Time Wasted",
-        description: "Switching tools constantly",
+        title: "The Dustpan Dance",
+        description: "Chasing debris that won't stay",
         icon: Clock,
         color: "accent",
     },
     {
-        title: "Cluttered Space",
-        description: "Too many tools stored",
+        title: "Cluttered Closet",
+        description: "Broom, dustpan, vacuum...",
         icon: Package,
         color: "accent2",
     },
     {
-        title: "Back Pain",
-        description: "Heavy lifting & bending",
+        title: "Constant Bending",
+        description: "Down to the dustpan every time",
         icon: Frown,
         color: "accent",
     },
@@ -41,7 +41,7 @@ export function ProblemSection() {
                             Sound familiar?
                         </p>
                         <h2 className="text-3xl md:text-4xl font-light text-foreground mb-4 leading-tight">
-                            The cleaning struggle is real.
+                            Dustpans are the worst.
                         </h2>
                     </div>
 

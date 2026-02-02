@@ -5,51 +5,51 @@ import Image from "next/image";
 
 const features = [
     {
-        id: "2in1",
-        label: "2-in-1 Design",
-        headline: "Sweep and vacuum.\nOne seamless motion.",
+        id: "dustpan-free",
+        label: "No Dustpan Needed",
+        headline: "Sweep. Lift. Done.\nNo bending over.",
         description:
-            "No more switching between tools. Bracuum combines sweeping and vacuuming into a single, fluid cleaning experience.",
+            "The intake nozzle is hidden within the bristles—perfectly positioned to capture debris when you lift. No dustpan, no hassle.",
         media: { type: "image" as const, placeholder: "/b.jpg" },
     },
     {
-        id: "lightweight",
-        label: "Ultra Lightweight",
-        headline: "2.5 lbs of\npure freedom.",
+        id: "twist-grip",
+        label: "Twist-Grip Design",
+        headline: "One natural motion.\nIntuitive control.",
         description:
-            "Clean your entire home without arm fatigue. So light, you'll forget you're holding it.",
+            "A quarter turn of the grip collar lifts the bristles and exposes the vacuum intake. Tactile click-stops at both positions let you feel the shift.",
         media: { type: "video" as const, placeholder: "/c.jpg" },
     },
     {
-        id: "suction",
-        label: "Powerful Suction",
-        headline: "12,000 PA.\nNothing escapes.",
+        id: "vertical-flow",
+        label: "Straight Airflow",
+        headline: "No bends.\nNo clogs.",
         description:
-            "Dust, debris, pet hair—our motor captures it all effortlessly. Deep clean without the effort.",
+            "Debris travels straight up the handle into the canister. This elegant vertical design minimizes clog points and maximizes suction efficiency.",
         media: { type: "image" as const, placeholder: "/b.jpg" },
     },
     {
-        id: "battery",
-        label: "Long Battery Life",
-        headline: "45 minutes.\nEvery room covered.",
+        id: "power",
+        label: "Powerful Motor",
+        headline: "25.2V lithium-ion.\nSerious suction.",
         description:
-            "One charge. Complete cleaning. The lithium-ion battery delivers consistent power from start to finish.",
+            "Based on proven vacuum technology, the motor delivers consistent power with 15-20 minutes of runtime—more than enough for typical sweeping sessions.",
         media: { type: "image" as const, placeholder: "/c.jpg" },
     },
     {
-        id: "quiet",
-        label: "Whisper Quiet",
-        headline: "65dB.\nBarely there.",
+        id: "floor-safe",
+        label: "Floor Protection",
+        headline: "Any floor.\nZero scratches.",
         description:
-            "Clean during nap time, early mornings, or late nights. Your family won't even notice.",
+            "Multi-point self-stabilizing glides with soft rubber adapt to any floor angle. Hardwood, tile, laminate—all protected.",
         media: { type: "video" as const, placeholder: "/b.jpg" },
     },
     {
-        id: "storage",
-        label: "Compact Storage",
-        headline: "Stands. Hangs.\nDisappears.",
+        id: "quality",
+        label: "Built to Last",
+        headline: "Quality first.\nNot disposable.",
         description:
-            "Slim profile fits anywhere. Stand it upright, hang it flat, or tuck it away. Your space, uncluttered.",
+            "Engineered for durability with minimal failure points. This is a quality product designed to create lasting value, not end up in a landfill.",
         media: { type: "image" as const, placeholder: "/c.jpg" },
     },
 ];
@@ -219,50 +219,42 @@ export function FeaturesSection() {
 
             {/* Quick Stats Bar */}
             <div className="border-t border-border/30 bg-muted">
-                {/* Top decorative accent */}
-                {/* <div className="flex justify-center -mt-px">
-                    <div className="flex items-center">
-                        <div className="h-px w-16 bg-gradient-to-r from-transparent to-accent/40" />
-                        <div className="w-2 h-2 rounded-full bg-accent/50 -mt-px" />
-                        <div className="h-px w-16 bg-gradient-to-l from-transparent to-accent/40" />
-                    </div>
-                </div> */}
                 <div className="max-w-5xl mx-auto px-6 py-12 md:py-16">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
                         <div className="text-center">
                             <div className="text-2xl md:text-3xl font-light text-foreground mb-1">
-                                2.5
-                                <span className="text-lg md:text-xl text-muted-foreground ml-1">lbs</span>
+                                56-57
+                                <span className="text-lg md:text-xl text-muted-foreground ml-1">in</span>
                             </div>
                             <div className="text-xs text-muted-foreground tracking-wide">
-                                Ultra lightweight
+                                Full-size height
                             </div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl md:text-3xl font-light text-foreground mb-1">
-                                12K
-                                <span className="text-lg md:text-xl text-muted-foreground ml-1">PA</span>
+                                25.2
+                                <span className="text-lg md:text-xl text-muted-foreground ml-1">V</span>
                             </div>
                             <div className="text-xs text-muted-foreground tracking-wide">
-                                Suction power
+                                Li-ion motor
                             </div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl md:text-3xl font-light text-foreground mb-1">
-                                45
+                                15-20
                                 <span className="text-lg md:text-xl text-muted-foreground ml-1">min</span>
                             </div>
                             <div className="text-xs text-muted-foreground tracking-wide">
-                                Battery life
+                                Runtime
                             </div>
                         </div>
                         <div className="text-center">
                             <div className="text-2xl md:text-3xl font-light text-foreground mb-1">
-                                65
-                                <span className="text-lg md:text-xl text-muted-foreground ml-1">dB</span>
+                                90°
+                                <span className="text-lg md:text-xl text-muted-foreground ml-1">twist</span>
                             </div>
                             <div className="text-xs text-muted-foreground tracking-wide">
-                                Whisper quiet
+                                Grip mechanism
                             </div>
                         </div>
                     </div>

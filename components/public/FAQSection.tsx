@@ -6,33 +6,33 @@ import { useState } from "react";
 
 const faqs = [
     {
-        question: "How does the 2-in-1 system work?",
-        answer: "Bracuum combines a broom and vacuum in one device. Simply sweep debris into the built-in vacuum chamber, then press the button to activate suction. No dustpan needed, no switching between tools.",
+        question: "How does the twist-grip mechanism work?",
+        answer: "The twist-grip collar is located 12-15 inches from the bristle head—right where your lower hand naturally grips. A quarter turn (90°) clockwise lifts the collar and bristles 4-5 inches, exposing the vacuum intake hidden within the bristles. You'll feel a satisfying click at both the UP and DOWN positions.",
         color: "accent",
     },
     {
         question: "What surfaces can I use it on?",
-        answer: "Bracuum works on all hard floors including hardwood, tile, laminate, and vinyl. The soft bristles are gentle enough to protect delicate surfaces while still being effective on textured tiles.",
+        answer: "Bracuum works on all hard floors including hardwood, tile, laminate, and vinyl. The multi-point self-stabilizing glides are made of soft rubber (TPE) that adapts to any floor angle and will not scratch any surface.",
         color: "accent2",
     },
     {
         question: "How long does the battery last?",
-        answer: "A full charge provides up to 45 minutes of continuous vacuuming. For typical daily use (sweeping with occasional vacuum bursts), you can go several days between charges.",
+        answer: "The 25.2V lithium-ion battery provides 15-20 minutes of vacuum runtime—more than sufficient for typical sweeping use. Remember, you only activate suction for 2-3 seconds per pile, so a single charge lasts through many cleaning sessions.",
         color: "accent",
     },
     {
-        question: "Is it really that quiet?",
-        answer: "Yes! Bracuum operates at just 65 dB, quieter than a normal conversation. You can clean early in the morning or late at night without disturbing anyone.",
+        question: "What makes this different from other vacuum brooms?",
+        answer: "The key innovation is the intake nozzle positioned WITHIN the bristles—hidden during sweeping, perfectly positioned when bristles lift. Debris travels straight up the handle with no bends, minimizing clog points. It's a simple, elegant design.",
         color: "accent2",
     },
     {
         question: "What's included with my order?",
-        answer: "Every Bracuum comes with the main unit, charging dock, USB-C charging cable, extra filter, and a quick-start guide. Everything you need to start cleaning smarter.",
+        answer: "Every Bracuum V1 comes with the main unit (56-57 inches tall), wall mount with charging contacts, and a quick-start guide. Optional LED headlights and battery level indicator enhance your cleaning experience.",
         color: "accent",
     },
     {
         question: "What is your return policy?",
-        answer: "We offer a 30-day satisfaction guarantee. If you're not completely happy with your Bracuum, return it for a full refund. We also provide a 2-year warranty covering manufacturing defects.",
+        answer: "We offer a 30-day satisfaction guarantee. If you're not completely happy with your Bracuum, return it for a full refund. We stand behind our quality-first approach with a comprehensive warranty covering manufacturing defects.",
         color: "accent2",
     },
 ];

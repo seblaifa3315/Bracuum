@@ -55,7 +55,7 @@ export function Footer() {
               </span>
             </div>
             <p className="text-background/70 text-sm leading-relaxed mb-6">
-              The revolutionary 2-in-1 cleaning solution that combines sweeping and vacuuming in one seamless device.
+              The cordless broom with integrated vacuum suction. Sweep, twist, vacuum—no dustpan needed. Patent pending.
             </p>
             <div className="space-y-3">
               <a
