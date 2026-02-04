@@ -69,10 +69,19 @@ return (
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.4 }}
-        className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-8 max-w-3xl leading-tight"
+        className="text-4xl sm:text-4xl md:text-5xl lg:text-6xl text-white mb-6 max-w-3xl leading-tight"
       >
         The cordless broom that vacuums. No dustpan needed. Ever.
       </motion.h1>
+
+      <motion.p
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.8, delay: 0.5 }}
+        className="text-base sm:text-lg text-white/80 mb-8 max-w-2xl leading-relaxed"
+      >
+        Sweep debris into a pile, lift the bristles via twist-grip, press power—debris is vacuumed straight up into the canister. The intake nozzle hides within the bristles until you need it.
+      </motion.p>
 
       {/* Buttons */}
       <motion.div
