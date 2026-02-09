@@ -44,7 +44,7 @@ return (
         <source src="/hero-background.mp4" type="video/mp4" />
       </video> */}
       <img
-      src="hero-background-fallback.jpg"
+      src="/hero-background-fallback.jpg"
       className="absolute inset-0 w-full h-full object-cover" />
       
       {/* Dark overlay for readability */}
