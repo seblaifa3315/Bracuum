@@ -43,6 +43,7 @@ model Product {
 model Order {
   // Primary identifier
   id                          String       @id @default(cuid()) // Unique order ID
+  orderNumber                 String       @unique              // Human-readable order number (e.g., BRC-0001)
 
   // Customer info (snapshot at purchase)
   firstName                   String                     // Customer first name
@@ -57,6 +58,7 @@ model Order {
   taxAmount                   Int                        // Tax collected
   shippingAmount              Int                        // Shipping fee charged
   totalAmount                 Int                        // subtotal + tax + shipping
+  stripeFee                   Int?                       // Stripe processing fee (in cents)
   currency                    String @default("usd") @db.VarChar(3) // Currency charged by Stripe
 
   // Order lifecycle
@@ -99,6 +101,12 @@ model Order {
   // Misc
   customerNotes                String?                    // Optional notes from customer
 
+  // Email tracking
+  customerEmailSentAt          DateTime?                  // When confirmation email was sent
+  customerEmailError           String?                    // Error message if email failed
+  sellerEmailSentAt            DateTime?                  // When seller notification was sent
+  sellerEmailError             String?                    // Error message if seller email failed
+
   // Relations
   warrantyClaims               WarrantyClaim[]            // Linked warranty claims
 
@@ -106,12 +114,24 @@ model Order {
   createdAt                    DateTime @default(now())   // Order creation timestamp
   updatedAt                    DateTime @updatedAt        // Last update timestamp
 
-  // Indexes for fast admin queries
+  // Indexes for fast queries
   @@index([email])
   @@index([status])
   @@index([status, isPreOrder])
+  @@index([stripeCheckoutSessionId])  // Webhook lookups
+  @@index([createdAt])                // Order number generation, admin sorting
 }
 
+
+//////////////////////
+// ORDER COUNTER (for atomic order number generation)
+//////////////////////
+
+model OrderCounter {
+  id        String   @id @default("default")  // Single row with id "default"
+  lastNumber Int     @default(0)              // Last used order number
+  updatedAt DateTime @updatedAt
+}
 
 //////////////////////
 // ORDER STATUS

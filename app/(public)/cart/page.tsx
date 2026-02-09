@@ -2,13 +2,41 @@
 
 import { useState } from 'react';
 import { useCart } from '@/lib/context/CartContext';
-import { Minus, Plus, Trash2, Truck, Calendar, Check, ShoppingBag } from 'lucide-react';
+import { Minus, Plus, Trash2, Truck, Calendar, Check, ShoppingBag, Loader2 } from 'lucide-react';
 
 const MAX_QUANTITY = 10;
 
 export default function Cart() {
   const { product, quantity, addToCart, updateQuantity, clearCart, getTotal, isLoading } = useCart();
   const [showMaxWarning, setShowMaxWarning] = useState(false);
+  const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  const handleCheckout = async () => {
+    setIsCheckingOut(true);
+    setCheckoutError(null);
+
+    try {
+      const response = await fetch('/api/checkout/create-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantity }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create checkout session');
+      }
+
+      // Redirect to Stripe Checkout
+      window.location.href = data.url;
+    } catch (error) {
+      console.error('Checkout error:', error);
+      setCheckoutError(error instanceof Error ? error.message : 'Something went wrong');
+      setIsCheckingOut(false);
+    }
+  };
 
   const handleIncrease = () => {
     if (quantity >= MAX_QUANTITY) {
@@ -165,9 +193,27 @@ export default function Cart() {
         </div>
       </div>
 
+      {/* Checkout Error */}
+      {checkoutError && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-ui text-red-800 text-sm">
+          {checkoutError}
+        </div>
+      )}
+
       {/* Checkout Button */}
-      <button className="w-full mt-6 border border-black bg-black text-white py-4 rounded-ui font-medium tracking-wide hover:bg-transparent hover:text-black transition-colors cursor-pointer">
-        CONTINUE TO CHECKOUT
+      <button
+        onClick={handleCheckout}
+        disabled={isCheckingOut}
+        className="w-full mt-6 border border-black bg-black text-white py-4 rounded-ui font-medium tracking-wide hover:bg-transparent hover:text-black transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white flex items-center justify-center gap-2"
+      >
+        {isCheckingOut ? (
+          <>
+            <Loader2 size={20} className="animate-spin" />
+            REDIRECTING TO CHECKOUT...
+          </>
+        ) : (
+          'CONTINUE TO CHECKOUT'
+        )}
       </button>
     </div>
   );
