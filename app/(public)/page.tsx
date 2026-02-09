@@ -1,5 +1,5 @@
 import {prisma} from "@/lib/prisma/prisma";
-import type { Product } from "@/generated/prisma";
+import type { Product } from "@/generated/prisma/client";
 import HomeRedirect from "@/components/public/HomeRedirect";
 import { HeroSection } from "@/components/public/HeroSection";
 import { ProblemSection } from "@/components/public/ProblemSection";
