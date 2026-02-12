@@ -1,9 +1,27 @@
 import { Resend } from 'resend'
+import { createClient } from '@supabase/supabase-js'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Bracuum <onboarding@resend.dev>'
-const SELLER_EMAIL = process.env.SELLER_EMAIL || 'seller@example.com'
+
+async function getAdminEmails(): Promise<string[]> {
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  )
+
+  const { data, error } = await supabase.auth.admin.listUsers()
+
+  if (error || !data?.users?.length) {
+    console.error('Failed to fetch admin users:', error)
+    return []
+  }
+
+  return data.users
+    .map((user) => user.email)
+    .filter((email): email is string => !!email)
+}
 
 interface OrderEmailData {
   id: string
@@ -196,9 +214,16 @@ export async function sendSellerNotification(order: OrderEmailData) {
     </html>
   `
 
+  const adminEmails = await getAdminEmails()
+
+  if (adminEmails.length === 0) {
+    console.error('No admin users found to send seller notification')
+    return
+  }
+
   const { error } = await resend.emails.send({
     from: FROM_EMAIL,
-    to: SELLER_EMAIL,
+    to: adminEmails,
     subject: `💰 New Order #${orderNumber} - ${formatPrice(order.totalAmount)}`,
     html,
   })
@@ -208,5 +233,5 @@ export async function sendSellerNotification(order: OrderEmailData) {
     throw error
   }
 
-  console.log('Seller notification email sent')
+  console.log('Seller notification email sent to:', adminEmails.join(', '))
 }
