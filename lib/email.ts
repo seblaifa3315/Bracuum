@@ -6,19 +6,24 @@ const resend = new Resend(process.env.RESEND_API_KEY)
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Bracuum <onboarding@resend.dev>'
 
 async function getAdminEmails(): Promise<string[]> {
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
-  )
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY
+
+  if (!url || !key) {
+    console.error('Missing SUPABASE_URL or SERVICE_ROLE_KEY')
+    return []
+  }
+
+  const supabase = createClient(url, key)
 
   const { data, error } = await supabase.auth.admin.listUsers()
 
-  if (error || !data?.users?.length) {
+  if (error) {
     console.error('Failed to fetch admin users:', error)
     return []
   }
 
-  return data.users
+  return (data?.users || [])
     .map((user) => user.email)
     .filter((email): email is string => !!email)
 }
@@ -221,17 +226,19 @@ export async function sendSellerNotification(order: OrderEmailData) {
     return
   }
 
-  const { error } = await resend.emails.send({
-    from: FROM_EMAIL,
-    to: adminEmails,
-    subject: `💰 New Order #${orderNumber} - ${formatPrice(order.totalAmount)}`,
-    html,
-  })
+  const results = await Promise.allSettled(
+    adminEmails.map((email) =>
+      resend.emails.send({
+        from: FROM_EMAIL,
+        to: email,
+        subject: `💰 New Order #${orderNumber} - ${formatPrice(order.totalAmount)}`,
+        html,
+      })
+    )
+  )
 
-  if (error) {
-    console.error('Failed to send seller notification email:', error)
-    throw error
+  const failures = results.filter((r) => r.status === 'rejected')
+  if (failures.length > 0) {
+    console.error('Failed to send some seller notifications:', failures)
   }
-
-  console.log('Seller notification email sent to:', adminEmails.join(', '))
 }
