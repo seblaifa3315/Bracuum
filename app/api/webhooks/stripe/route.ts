@@ -138,81 +138,66 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
     shippingAddress,
   })
 
-  // Generate order number atomically (BRC-0001, BRC-0002, etc.)
-  // Uses upsert + increment to prevent race conditions
-  let counter = await prisma.orderCounter.findUnique({
-    where: { id: 'default' },
-  })
-
-  if (!counter) {
-    // First time: check existing orders to find the highest number
-    const lastOrder = await prisma.order.findFirst({
-      orderBy: { createdAt: 'desc' },
-      select: { orderNumber: true },
-    })
-
-    let startNumber = 0
-    if (lastOrder?.orderNumber) {
-      const match = lastOrder.orderNumber.match(/BRC-(\d+)/)
-      if (match) {
-        startNumber = parseInt(match[1], 10)
-      }
-    }
-
-    // Create counter starting from the next number
-    counter = await prisma.orderCounter.create({
-      data: { id: 'default', lastNumber: startNumber + 1 },
-    })
-  } else {
-    // Counter exists, increment it
-    counter = await prisma.orderCounter.update({
-      where: { id: 'default' },
-      data: { lastNumber: { increment: 1 } },
-    })
-  }
-
-  const orderNumber = `BRC-${counter.lastNumber.toString().padStart(4, '0')}`
-
-  // Create the order (unique constraint on stripeCheckoutSessionId prevents duplicates)
+  // Generate order number and create order in a transaction
+  // This ensures the counter doesn't increment if the order creation fails (e.g. duplicate webhook)
   let order
   try {
-    order = await prisma.order.create({
-      data: {
-        // Order number
-        orderNumber,
-        // Customer info
-        firstName,
-        lastName,
-        email: customerDetails?.email || 'unknown@example.com',
-        phoneNumber: customerDetails?.phone || null,
-        quantity,
+    order = await prisma.$transaction(async (tx) => {
+      let counter = await tx.orderCounter.findUnique({
+        where: { id: 'default' },
+      })
 
-        // Pricing
-        productPrice,
-        subtotal,
-        taxAmount,
-        shippingAmount,
-        totalAmount,
-        // stripeFee is set via charge.updated webhook
-        currency: fullSession.currency || 'usd',
+      if (!counter) {
+        const lastOrder = await tx.order.findFirst({
+          orderBy: { createdAt: 'desc' },
+          select: { orderNumber: true },
+        })
 
-        // Status
-        status: 'PAID',
+        let startNumber = 0
+        if (lastOrder?.orderNumber) {
+          const match = lastOrder.orderNumber.match(/BRC-(\d+)/)
+          if (match) {
+            startNumber = parseInt(match[1], 10)
+          }
+        }
 
-        // Stripe
-        stripeCheckoutSessionId: session.id,
+        counter = await tx.orderCounter.create({
+          data: { id: 'default', lastNumber: startNumber + 1 },
+        })
+      } else {
+        counter = await tx.orderCounter.update({
+          where: { id: 'default' },
+          data: { lastNumber: { increment: 1 } },
+        })
+      }
 
-        // Shipping address (store full object)
-        shippingAddress: (shippingAddress || {}) as object,
+      const orderNumber = `BRC-${counter.lastNumber.toString().padStart(4, '0')}`
 
-        // Structured address fields (for US orders)
-        addressLine1: shippingAddress?.line1 || null,
-        addressLine2: shippingAddress?.line2 || null,
-        city: shippingAddress?.city || null,
-        state: shippingAddress?.state || null,
-        zip: shippingAddress?.postal_code || null,
-        country: shippingAddress?.country || null,
-      },
+      return tx.order.create({
+        data: {
+          orderNumber,
+          firstName,
+          lastName,
+          email: customerDetails?.email || 'unknown@example.com',
+          phoneNumber: customerDetails?.phone || null,
+          quantity,
+          productPrice,
+          subtotal,
+          taxAmount,
+          shippingAmount,
+          totalAmount,
+          currency: fullSession.currency || 'usd',
+          status: 'PAID',
+          stripeCheckoutSessionId: session.id,
+          shippingAddress: (shippingAddress || {}) as object,
+          addressLine1: shippingAddress?.line1 || null,
+          addressLine2: shippingAddress?.line2 || null,
+          city: shippingAddress?.city || null,
+          state: shippingAddress?.state || null,
+          zip: shippingAddress?.postal_code || null,
+          country: shippingAddress?.country || null,
+        },
+      })
     })
   } catch (err: unknown) {
     // Unique constraint violation = duplicate webhook, safe to ignore
