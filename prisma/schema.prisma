@@ -70,7 +70,7 @@ model Order {
   remainingAmount             Int?                       // Remaining balance for pre-order
 
   // Stripe integration
-  stripeCheckoutSessionId      String                     // Stripe Checkout session ID
+  stripeCheckoutSessionId      String   @unique            // Stripe Checkout session ID
   stripeDepositPaymentIntentId String?                    // Stripe payment intent for deposit
   stripeBalancePaymentIntentId String?                    // Stripe payment intent for final payment (pre-orders)
 
@@ -118,7 +118,7 @@ model Order {
   @@index([email])
   @@index([status])
   @@index([status, isPreOrder])
-  @@index([stripeCheckoutSessionId])  // Webhook lookups
+  // stripeCheckoutSessionId has @unique (also serves as index for webhook lookups)
   @@index([createdAt])                // Order number generation, admin sorting
 }
 

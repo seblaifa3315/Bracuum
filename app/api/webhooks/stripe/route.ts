@@ -173,45 +173,55 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
 
   const orderNumber = `BRC-${counter.lastNumber.toString().padStart(4, '0')}`
 
-  // Create the order
-  const order = await prisma.order.create({
-    data: {
-      // Order number
-      orderNumber,
-      // Customer info
-      firstName,
-      lastName,
-      email: customerDetails?.email || 'unknown@example.com',
-      phoneNumber: customerDetails?.phone || null,
-      quantity,
+  // Create the order (unique constraint on stripeCheckoutSessionId prevents duplicates)
+  let order
+  try {
+    order = await prisma.order.create({
+      data: {
+        // Order number
+        orderNumber,
+        // Customer info
+        firstName,
+        lastName,
+        email: customerDetails?.email || 'unknown@example.com',
+        phoneNumber: customerDetails?.phone || null,
+        quantity,
 
-      // Pricing
-      productPrice,
-      subtotal,
-      taxAmount,
-      shippingAmount,
-      totalAmount,
-      // stripeFee is set via charge.updated webhook
-      currency: fullSession.currency || 'usd',
+        // Pricing
+        productPrice,
+        subtotal,
+        taxAmount,
+        shippingAmount,
+        totalAmount,
+        // stripeFee is set via charge.updated webhook
+        currency: fullSession.currency || 'usd',
 
-      // Status
-      status: 'PAID',
+        // Status
+        status: 'PAID',
 
-      // Stripe
-      stripeCheckoutSessionId: session.id,
+        // Stripe
+        stripeCheckoutSessionId: session.id,
 
-      // Shipping address (store full object)
-      shippingAddress: (shippingAddress || {}) as object,
+        // Shipping address (store full object)
+        shippingAddress: (shippingAddress || {}) as object,
 
-      // Structured address fields (for US orders)
-      addressLine1: shippingAddress?.line1 || null,
-      addressLine2: shippingAddress?.line2 || null,
-      city: shippingAddress?.city || null,
-      state: shippingAddress?.state || null,
-      zip: shippingAddress?.postal_code || null,
-      country: shippingAddress?.country || null,
-    },
-  })
+        // Structured address fields (for US orders)
+        addressLine1: shippingAddress?.line1 || null,
+        addressLine2: shippingAddress?.line2 || null,
+        city: shippingAddress?.city || null,
+        state: shippingAddress?.state || null,
+        zip: shippingAddress?.postal_code || null,
+        country: shippingAddress?.country || null,
+      },
+    })
+  } catch (err: unknown) {
+    // Unique constraint violation = duplicate webhook, safe to ignore
+    if (err && typeof err === 'object' && 'code' in err && err.code === 'P2002') {
+      console.log('Duplicate webhook for session (unique constraint):', session.id)
+      return
+    }
+    throw err
+  }
 
   console.log('Order created:', order.id)
 
