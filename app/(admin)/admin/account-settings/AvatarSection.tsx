@@ -136,42 +136,50 @@ export function AvatarSection({firstName, lastName, email, initialAvatarUrl}: Av
     };
 
     return (
-        <Card className="mb-6 bg-primary border border-foreground/40">
-            <div className="p-8 text-primary-foreground rounded-t-2xl">
-                <div className="flex flex-col md:flex-row items-center gap-6">
-                    <div className="relative group">
-                        <div className="w-32 h-32 rounded-full overflow-hidden border-4 border-primary-foreground shadow-xl">
+        <Card className="mb-6 border border-border bg-card">
+            <div className="p-6">
+                <div className="flex items-center gap-5">
+                    {/* Avatar */}
+                    <div className="relative shrink-0">
+                        <div className="w-20 h-20 rounded-full overflow-hidden bg-muted">
                             {avatarLoading ? (
-                                <div className="w-full h-full flex items-center justify-center bg-muted">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                                <div className="w-full h-full flex items-center justify-center">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-2 border-foreground/20 border-t-foreground"></div>
                                 </div>
                             ) : (
                                 <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
                             )}
                         </div>
-
-                        <label className="absolute bottom-0 right-0 bg-card text-primary rounded-full p-3 shadow-lg cursor-pointer hover:bg-accent transition-colors">
-                            <Camera size={20} />
-                            <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={avatarLoading} />
-                        </label>
-
-                        {currentAvatarUrl && (
-                            <button 
-                                onClick={handleRemoveAvatar} 
-                                disabled={avatarLoading} 
-                                className="absolute top-0 right-0 bg-destructive text-white rounded-full p-2 shadow-lg hover:bg-destructive/90 transition-colors disabled:opacity-50" 
-                                title="Remove avatar"
-                            >
-                                <X size={16} />
-                            </button>
-                        )}
                     </div>
 
-                    <div className="text-center md:text-left">
-                        <h2 className="text-2xl font-bold mb-1">
+                    {/* Info + Actions */}
+                    <div className="min-w-0 flex-1">
+                        <h2 className="text-lg font-semibold text-foreground truncate">
                             {firstName} {lastName}
                         </h2>
-                        <p className="text-primary-foreground/80">{email}</p>
+                        <p className="text-sm text-muted-foreground truncate mb-3">{email}</p>
+
+                        <div className="flex items-center gap-3">
+                            <label className="inline-flex items-center gap-1.5 text-sm font-medium text-foreground hover:text-accent cursor-pointer transition-colors">
+                                <Camera size={15} />
+                                <span>{currentAvatarUrl ? "Change" : "Upload"}</span>
+                                <input type="file" className="hidden" accept="image/*" onChange={handleImageChange} disabled={avatarLoading} />
+                            </label>
+
+                            {currentAvatarUrl && (
+                                <>
+                                    <span className="text-border">|</span>
+                                    <button
+                                        onClick={handleRemoveAvatar}
+                                        disabled={avatarLoading}
+                                        className="inline-flex items-center gap-1.5 text-sm font-medium text-muted-foreground hover:text-destructive transition-colors disabled:opacity-50"
+                                    >
+                                        <X size={15} />
+                                        <span>Remove</span>
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             </div>
