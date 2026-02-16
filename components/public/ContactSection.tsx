@@ -30,6 +30,7 @@ export function ContactSection() {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -38,10 +39,27 @@ export function ContactSection() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSubmitting(false);
-    setIsSubmitted(true);
-    setFormData({ name: '', email: '', message: '' });
+    setError(null);
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      setIsSubmitted(true);
+      setFormData({ name: '', email: '', message: '' });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to send message. Please try again.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -105,13 +123,19 @@ export function ContactSection() {
                   We'll get back to you soon.
                 </p>
                 <button
-                  onClick={() => setIsSubmitted(false)}
+                  onClick={() => { setIsSubmitted(false); setError(null); }}
                   className="px-5 py-1.5 text-sm text-accent hover:text-background hover:bg-accent rounded-full border border-accent transition-all duration-300"
                 >
                   Send another
                 </button>
               </motion.div>
             ) : (
+              <>
+              {error && (
+                <div className="mb-3 p-3 bg-red-50 border border-red-200 rounded-ui text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="flex-1 flex flex-col space-y-3">
                 {/* Name Field */}
                 <div>
@@ -181,6 +205,7 @@ export function ContactSection() {
                   )}
                 </motion.button>
               </form>
+              </>
             )}
           </motion.div>
 

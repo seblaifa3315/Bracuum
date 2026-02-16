@@ -4,8 +4,9 @@ import { createClient } from '@supabase/supabase-js'
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Bracuum <onboarding@resend.dev>'
+const CONTACT_FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || FROM_EMAIL
 
-async function getAdminEmails(): Promise<string[]> {
+export async function getAdminEmails(): Promise<string[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY
 
@@ -241,4 +242,75 @@ export async function sendSellerNotification(order: OrderEmailData) {
   if (failures.length > 0) {
     console.error('Failed to send some seller notifications:', failures)
   }
+}
+
+/**
+ * Send contact form submission to admin emails
+ */
+export async function sendContactForm(data: {
+  name: string
+  email: string
+  message: string
+}) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="background: #000; color: white; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;">
+        <h1 style="margin: 0; font-size: 24px;">New Contact Message</h1>
+      </div>
+
+      <div style="border: 1px solid #e5e5e5; border-top: none; border-radius: 0 0 8px 8px; padding: 20px;">
+        <table style="width: 100%; margin-bottom: 20px;">
+          <tr>
+            <td style="color: #666; padding: 5px 0; vertical-align: top; width: 80px;">Name:</td>
+            <td style="padding: 5px 0;">${data.name}</td>
+          </tr>
+          <tr>
+            <td style="color: #666; padding: 5px 0; vertical-align: top;">Email:</td>
+            <td style="padding: 5px 0;"><a href="mailto:${data.email}">${data.email}</a></td>
+          </tr>
+        </table>
+
+        <h2 style="font-size: 16px; margin-bottom: 8px;">Message</h2>
+        <div style="background: #f9f9f9; border-radius: 6px; padding: 16px; color: #333; white-space: pre-wrap;">${data.message}</div>
+
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="mailto:${data.email}?subject=Re: Your message to Bracuum" style="display: inline-block; background: #000; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px;">Reply to ${data.name}</a>
+        </div>
+      </div>
+    </body>
+    </html>
+  `
+
+  const adminEmails = await getAdminEmails()
+
+  if (adminEmails.length === 0) {
+    console.error('No admin users found to send contact form notification')
+    throw new Error('No admin recipients configured')
+  }
+
+  const results = await Promise.allSettled(
+    adminEmails.map((email) =>
+      resend.emails.send({
+        from: CONTACT_FROM_EMAIL,
+        to: email,
+        subject: `New Contact Message from ${data.name}`,
+        html,
+        replyTo: data.email,
+      })
+    )
+  )
+
+  const failures = results.filter((r) => r.status === 'rejected')
+  if (failures.length > 0) {
+    console.error('Failed to send some contact notifications:', failures)
+    throw new Error('Failed to send contact email')
+  }
+
+  console.log('Contact form email sent to admins')
 }
