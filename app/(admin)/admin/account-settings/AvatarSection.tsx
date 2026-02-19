@@ -141,7 +141,7 @@ export function AvatarSection({firstName, lastName, email, initialAvatarUrl}: Av
                 <div className="flex items-center gap-5">
                     {/* Avatar */}
                     <div className="relative shrink-0">
-                        <div className="w-20 h-20 rounded-full overflow-hidden bg-muted">
+                        <div className="w-25 h-25 rounded-full overflow-hidden bg-muted">
                             {avatarLoading ? (
                                 <div className="w-full h-full flex items-center justify-center">
                                     <div className="animate-spin rounded-full h-5 w-5 border-2 border-foreground/20 border-t-foreground"></div>

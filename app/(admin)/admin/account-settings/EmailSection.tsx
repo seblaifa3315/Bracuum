@@ -66,7 +66,7 @@ export function EmailSection({initialEmail}: EmailSectionProps) {
     };
 
     return (
-        <Card className="mb-6">
+        <Card className="mb-6 border border-border bg-card">
             <CardContent className="pt-6">
                 <div className="space-y-6">
                     <div>
