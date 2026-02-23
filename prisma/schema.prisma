@@ -88,6 +88,9 @@ model Order {
 
   trackingNumber               String?                    // Carrier tracking number
   shippedAt                    DateTime?                  // Timestamp when order was shipped
+  carrier                      String?                    // Shipping carrier (e.g., USPS, UPS, FedEx)
+  shippingMethod               String?                    // Shipping method (e.g., Ground, Express, Overnight)
+  shippingNotes                String?                    // Internal admin notes about the shipment
 
   // Returns & refunds
   returnRequestedAt            DateTime?                  // Customer requested return
@@ -143,6 +146,7 @@ enum OrderStatus {
   PREORDER_WAITING
   PAID
   SHIPPED
+  DELIVERED
   RETURN_REQUESTED
   RETURN_RECEIVED
   REFUNDED

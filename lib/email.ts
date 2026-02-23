@@ -245,6 +245,129 @@ export async function sendSellerNotification(order: OrderEmailData) {
 }
 
 /**
+ * Send shipping confirmation email to the customer
+ */
+export async function sendShippingConfirmation(order: {
+  orderNumber: string
+  firstName: string
+  email: string
+  carrier: string | null
+  shippingMethod: string | null
+  trackingNumber: string | null
+}) {
+  const trackingSection = order.trackingNumber
+    ? `<div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; margin-top: 0;">Tracking Information</h2>
+        <table style="width: 100%;">
+          ${order.carrier ? `<tr><td style="color: #666; padding: 5px 0;">Carrier:</td><td style="padding: 5px 0;">${order.carrier}</td></tr>` : ''}
+          ${order.shippingMethod ? `<tr><td style="color: #666; padding: 5px 0;">Method:</td><td style="padding: 5px 0;">${order.shippingMethod}</td></tr>` : ''}
+          <tr><td style="color: #666; padding: 5px 0;">Tracking #:</td><td style="padding: 5px 0; font-family: monospace;">${order.trackingNumber}</td></tr>
+        </table>
+      </div>`
+    : ''
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #000; font-size: 24px; margin-bottom: 10px;">Your order has shipped!</h1>
+        <p style="color: #666; font-size: 16px;">Order #${order.orderNumber}</p>
+      </div>
+
+      <div style="background: #f0f7ff; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #333;">Hi ${order.firstName},</p>
+        <p style="color: #666;">Great news! Your Bracuum order has been shipped and is on its way to you.</p>
+      </div>
+
+      ${trackingSection}
+
+      <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
+        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `Your Order #${order.orderNumber} Has Shipped!`,
+    html,
+  })
+
+  if (error) {
+    console.error('Failed to send shipping confirmation email:', error)
+    throw error
+  }
+
+  console.log('Shipping confirmation email sent to:', order.email)
+}
+
+/**
+ * Send delivery confirmation email to the customer
+ */
+export async function sendDeliveryConfirmation(order: {
+  orderNumber: string
+  firstName: string
+  email: string
+}) {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #000; font-size: 24px; margin-bottom: 10px;">Your order has been delivered!</h1>
+        <p style="color: #666; font-size: 16px;">Order #${order.orderNumber}</p>
+      </div>
+
+      <div style="background: #f0fdf4; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #333;">Hi ${order.firstName},</p>
+        <p style="color: #666;">Your Bracuum order has been delivered. We hope you love it!</p>
+      </div>
+
+      <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; margin-top: 0;">Good to know</h2>
+        <ul style="margin: 0; padding-left: 20px; color: #666;">
+          <li>Your product comes with a <strong>1-year warranty</strong> starting today</li>
+          <li>You have <strong>30 days</strong> to request a return if needed</li>
+          <li>Need help getting started? Check out our support page</li>
+        </ul>
+      </div>
+
+      <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
+        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `Your Order #${order.orderNumber} Has Been Delivered!`,
+    html,
+  })
+
+  if (error) {
+    console.error('Failed to send delivery confirmation email:', error)
+    throw error
+  }
+
+  console.log('Delivery confirmation email sent to:', order.email)
+}
+
+/**
  * Send contact form submission to admin emails
  */
 export async function sendContactForm(data: {
