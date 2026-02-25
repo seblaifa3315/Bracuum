@@ -81,7 +81,7 @@ export function Sidebar({ activeItem, onItemChange }: SidebarProps) {
     const menuItems = [
         {id: "dashboard", label: "Dashboard", icon: LayoutDashboard, route: "/admin"},
         {id: "product", label: "Product", icon: Package, route: "/admin/product"},
-        {id: "order", label: "Order", icon: ShoppingCart, route: "/admin/order"},
+        {id: "order", label: "Orders", icon: ShoppingCart, route: "/admin/order"},
         {id: "customers", label: "Customers", icon: Users, route: "/admin/customers"},
         {id: "analytics", label: "Analytics", icon: BarChart3, route: "/admin/analytics"},
         {id: "warranty", label: "Warranty Claim", icon: FileWarning, route: "/admin/warranty"},

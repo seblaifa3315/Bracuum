@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -18,7 +19,11 @@ import {
   User,
   Filter,
   AlertCircle,
+  ExternalLink,
+  Pencil,
+  X,
 } from "lucide-react";
+import Link from "next/link";
 
 // ─── Types ───────────────────────────────────────────────────────────
 type OrderStatus =
@@ -140,7 +145,16 @@ function formatDateTime(dateStr: string | null): string {
 }
 
 // ─── Component ───────────────────────────────────────────────────────
-export default function OrdersAdminPage() {
+export default function OrdersAdminPageWrapper() {
+  return (
+    <Suspense>
+      <OrdersAdminPage />
+    </Suspense>
+  );
+}
+
+function OrdersAdminPage() {
+  const searchParams = useSearchParams();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -163,15 +177,43 @@ export default function OrdersAdminPage() {
   const [shipLoading, setShipLoading] = useState(false);
   const [shipError, setShipError] = useState("");
   const [shipSuccess, setShipSuccess] = useState("");
+  const [shipAttempted, setShipAttempted] = useState(false);
 
   // Deliver action
   const [deliverDate, setDeliverDate] = useState(new Date().toISOString().split("T")[0]);
   const [deliverLoading, setDeliverLoading] = useState(false);
   const [deliverError, setDeliverError] = useState("");
+  const [deliverAttempted, setDeliverAttempted] = useState(false);
+
+  // Edit shipping/delivery
+  const [editingOrderId, setEditingOrderId] = useState<string | null>(null);
+  const [editForm, setEditForm] = useState({
+    carrier: "",
+    shippingMethod: "",
+    trackingNumber: "",
+    shippedAt: "",
+    shippingNotes: "",
+    deliveredAt: "",
+  });
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState("");
+  const [editSuccess, setEditSuccess] = useState("");
+
+  // Revert action
+  const [revertLoading, setRevertLoading] = useState(false);
+  const [revertConfirmId, setRevertConfirmId] = useState<string | null>(null);
 
   useEffect(() => {
     fetchOrders();
   }, []);
+
+  // Auto-expand order from query param (e.g. ?orderId=abc)
+  useEffect(() => {
+    const orderId = searchParams.get("orderId");
+    if (orderId && orders.length > 0 && !loading) {
+      setExpandedOrderId(orderId);
+    }
+  }, [searchParams, orders, loading]);
 
   const fetchOrders = async () => {
     setLoading(true);
@@ -258,6 +300,12 @@ export default function OrdersAdminPage() {
 
   // ─── Ship Handler ───────────────────────────────────────────────────
   const handleMarkAsShipped = async (orderId: string) => {
+    setShipAttempted(true);
+    // Validate required fields
+    if (!shipForm.carrier || !shipForm.shippingMethod || !shipForm.trackingNumber.trim() || !shipForm.shippedAt) {
+      setShipError("Please fill in all required fields.");
+      return;
+    }
     setShipLoading(true);
     setShipError("");
     setShipSuccess("");
@@ -282,6 +330,7 @@ export default function OrdersAdminPage() {
         prev.map((o) => (o.id === orderId ? data.data : o))
       );
       setShipSuccess("Order marked as shipped!");
+      setShipAttempted(false);
       setShipForm({
         carrier: "",
         shippingMethod: "",
@@ -300,6 +349,11 @@ export default function OrdersAdminPage() {
 
   // ─── Deliver Handler ────────────────────────────────────────────────
   const handleMarkAsDelivered = async (orderId: string) => {
+    setDeliverAttempted(true);
+    if (!deliverDate) {
+      setDeliverError("Please fill in the delivery date.");
+      return;
+    }
     setDeliverLoading(true);
     setDeliverError("");
     try {
@@ -314,11 +368,91 @@ export default function OrdersAdminPage() {
       setOrders((prev) =>
         prev.map((o) => (o.id === orderId ? data.data : o))
       );
+      setDeliverAttempted(false);
       setDeliverDate(new Date().toISOString().split("T")[0]);
     } catch (err) {
       setDeliverError(err instanceof Error ? err.message : "Failed to mark as delivered");
     } finally {
       setDeliverLoading(false);
+    }
+  };
+
+  // ─── Start Editing ─────────────────────────────────────────────────
+  const startEditing = (order: Order) => {
+    setEditingOrderId(order.id);
+    setEditError("");
+    setEditSuccess("");
+    setEditForm({
+      carrier: order.carrier || "",
+      shippingMethod: order.shippingMethod || "",
+      trackingNumber: order.trackingNumber || "",
+      shippedAt: order.shippedAt ? new Date(order.shippedAt).toISOString().split("T")[0] : "",
+      shippingNotes: order.shippingNotes || "",
+      deliveredAt: order.deliveredAt ? new Date(order.deliveredAt).toISOString().split("T")[0] : "",
+    });
+  };
+
+  // ─── Save Edit Handler ────────────────────────────────────────────
+  const handleSaveEdit = async (orderId: string, orderStatus: string) => {
+    setEditLoading(true);
+    setEditError("");
+    setEditSuccess("");
+    try {
+      const body: Record<string, string | undefined> = {
+        trackingNumber: editForm.trackingNumber.trim() || undefined,
+        carrier: editForm.carrier || undefined,
+        shippingMethod: editForm.shippingMethod || undefined,
+        shippingNotes: editForm.shippingNotes.trim() || undefined,
+        shippedAt: editForm.shippedAt || undefined,
+      };
+
+      // If delivered date changed on a DELIVERED order, include it
+      if (orderStatus === "DELIVERED" && editForm.deliveredAt) {
+        body.deliveredAt = editForm.deliveredAt;
+      }
+
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to update order");
+
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? data.data : o))
+      );
+      setEditSuccess("Changes saved!");
+      setEditingOrderId(null);
+      setTimeout(() => setEditSuccess(""), 3000);
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Failed to save changes");
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  // ─── Revert Handler ────────────────────────────────────────────────
+  const handleRevert = async (orderId: string, revertTo: "REVERT_TO_PAID" | "REVERT_TO_SHIPPED") => {
+    setRevertLoading(true);
+    try {
+      const res = await fetch(`/api/admin/orders/${orderId}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: revertTo }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to revert order");
+
+      setOrders((prev) =>
+        prev.map((o) => (o.id === orderId ? data.data : o))
+      );
+      setRevertConfirmId(null);
+      setEditingOrderId(null);
+    } catch (err) {
+      setEditError(err instanceof Error ? err.message : "Failed to revert order");
+    } finally {
+      setRevertLoading(false);
     }
   };
 
@@ -328,7 +462,9 @@ export default function OrdersAdminPage() {
     setShippingOrderId(null);
     setShipError("");
     setShipSuccess("");
+    setShipAttempted(false);
     setDeliverError("");
+    setDeliverAttempted(false);
     setDeliverDate(new Date().toISOString().split("T")[0]);
     setShipForm({
       carrier: "",
@@ -337,6 +473,10 @@ export default function OrdersAdminPage() {
       shippedAt: new Date().toISOString().split("T")[0],
       shippingNotes: "",
     });
+    setEditingOrderId(null);
+    setEditError("");
+    setEditSuccess("");
+    setRevertConfirmId(null);
   };
 
   // ─── Loading State ──────────────────────────────────────────────────
@@ -467,10 +607,10 @@ export default function OrdersAdminPage() {
         </select>
       </div>
 
-      {/* Ship success message */}
-      {shipSuccess && (
+      {/* Success messages */}
+      {(shipSuccess || editSuccess) && (
         <div className="bg-green-500/10 border border-green-500/20 text-green-600 px-4 py-3 rounded-ui mb-4">
-          {shipSuccess}
+          {shipSuccess || editSuccess}
         </div>
       )}
 
@@ -501,18 +641,24 @@ export default function OrdersAdminPage() {
           </div>
 
           {/* Table Rows */}
-          {filteredOrders.map((order) => (
-            <div key={order.id} className="border-b border-border last:border-b-0">
+          {filteredOrders.map((order) => {
+            const isExpanded = expandedOrderId === order.id;
+            return (
+            <div key={order.id} className={`border-b border-border last:border-b-0 ${isExpanded ? "bg-muted/10" : ""}`}>
               {/* Row */}
               <div
-                className="grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1fr_0.5fr_1fr_0.8fr_0.8fr_auto] gap-4 px-6 py-4 items-center cursor-pointer hover:bg-muted/30 transition-colors"
+                className={`grid grid-cols-1 md:grid-cols-[1fr_2fr_1fr_1fr_0.5fr_1fr_0.8fr_0.8fr_auto] gap-4 px-6 py-4 items-center cursor-pointer transition-colors ${isExpanded ? "bg-primary/5 border-l-3 border-l-primary" : "hover:bg-muted/30"}`}
                 onClick={() => toggleExpand(order.id)}
               >
                 <span className="font-medium text-foreground">{order.orderNumber}</span>
                 <div className="min-w-0">
-                  <p className="text-foreground truncate">
+                  <Link
+                    href={`/admin/customers?email=${encodeURIComponent(order.email)}`}
+                    className="text-foreground hover:text-primary hover:underline truncate block"
+                    onClick={(e) => e.stopPropagation()}
+                  >
                     {order.firstName} {order.lastName}
-                  </p>
+                  </Link>
                   <p className="text-sm text-muted-foreground truncate">{order.email}</p>
                 </div>
                 <span className="text-foreground">{formatDate(order.createdAt)}</span>
@@ -548,7 +694,7 @@ export default function OrdersAdminPage() {
                   )}
                 </span>
                 <Button variant="ghost" size="icon-sm" onClick={(e) => { e.stopPropagation(); toggleExpand(order.id); }}>
-                  {expandedOrderId === order.id ? (
+                  {isExpanded ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (
                     <ChevronDown className="w-4 h-4" />
@@ -557,14 +703,22 @@ export default function OrdersAdminPage() {
               </div>
 
               {/* Expanded Detail Panel */}
-              {expandedOrderId === order.id && (
-                <div className="px-6 pb-6 pt-2 bg-muted/20 border-t border-border">
+              {isExpanded && (
+                <div className="px-6 pb-6 pt-4 bg-muted/40 border-t border-border border-l-3 border-l-primary">
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     {/* Customer Info */}
                     <div className="bg-card border border-border rounded-ui p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <User className="w-4 h-4 text-primary" />
-                        <h3 className="font-semibold text-foreground">Customer Info</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <User className="w-4 h-4 text-primary" />
+                          <h3 className="font-semibold text-foreground">Customer Info</h3>
+                        </div>
+                        <Link
+                          href={`/admin/customers?email=${encodeURIComponent(order.email)}`}
+                          className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors"
+                        >
+                          View profile <ExternalLink className="w-3 h-3" />
+                        </Link>
                       </div>
                       <div className="space-y-1 text-sm">
                         <p className="text-foreground">
@@ -575,6 +729,13 @@ export default function OrdersAdminPage() {
                           <p className="text-muted-foreground">{order.phoneNumber}</p>
                         )}
                       </div>
+                      <a
+                        href={`mailto:${order.email}`}
+                        className="inline-flex items-center gap-2 mt-3 px-3 py-1.5 text-sm font-medium text-primary bg-primary/10 hover:bg-primary/20 rounded-ui transition-colors"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        Send Email
+                      </a>
                     </div>
 
                     {/* Shipping Address */}
@@ -653,92 +814,282 @@ export default function OrdersAdminPage() {
 
                     {/* Timeline / Key Dates */}
                     <div className="bg-card border border-border rounded-ui p-4">
-                      <div className="flex items-center gap-2 mb-3">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <h3 className="font-semibold text-foreground">Timeline</h3>
+                      <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-primary" />
+                          <h3 className="font-semibold text-foreground">Timeline</h3>
+                        </div>
+                        {(order.status === "SHIPPED" || order.status === "DELIVERED") && editingOrderId !== order.id && (
+                          <button
+                            onClick={() => startEditing(order)}
+                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-primary transition-colors cursor-pointer"
+                          >
+                            <Pencil className="w-3 h-3" /> Edit
+                          </button>
+                        )}
+                        {editingOrderId === order.id && (
+                          <button
+                            onClick={() => { setEditingOrderId(null); setEditError(""); }}
+                            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                          >
+                            <X className="w-3 h-3" /> Cancel
+                          </button>
+                        )}
                       </div>
-                      <div className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Order placed</span>
-                          <span className="text-foreground">{formatDateTime(order.createdAt)}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">Shipped</span>
-                          <span className="text-foreground">
-                            {order.shippedAt ? formatDate(order.shippedAt, true) : "Not yet shipped"}
-                          </span>
-                        </div>
-                        {order.carrier && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Carrier</span>
-                            <span className="text-foreground">{order.carrier}</span>
-                          </div>
-                        )}
-                        {order.shippingMethod && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Method</span>
-                            <span className="text-foreground">{order.shippingMethod}</span>
-                          </div>
-                        )}
-                        {order.trackingNumber && (
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Tracking #</span>
-                            <span className="text-foreground font-mono">{order.trackingNumber}</span>
-                          </div>
-                        )}
-                        {order.deliveredAt ? (
-                          <>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Delivered</span>
-                              <span className="text-foreground">{formatDate(order.deliveredAt, true)}</span>
+
+                      {editingOrderId === order.id ? (
+                        /* ─── Edit Form ─── */
+                        <div className="space-y-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-muted-foreground mb-1">Carrier</label>
+                              <select
+                                value={editForm.carrier}
+                                onChange={(e) => setEditForm((f) => ({ ...f, carrier: e.target.value }))}
+                                className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm appearance-none cursor-pointer"
+                              >
+                                <option value="">Select carrier...</option>
+                                <option value="USPS">USPS</option>
+                                <option value="UPS">UPS</option>
+                                <option value="FedEx">FedEx</option>
+                                <option value="DHL">DHL</option>
+                                <option value="Other">Other</option>
+                              </select>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Warranty expires</span>
-                              <Badge className={`${order.warrantyExpiresAt && new Date(order.warrantyExpiresAt).getTime() > Date.now() ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} border-none`}>
-                                {formatDate(order.warrantyExpiresAt, true)}
-                              </Badge>
+                            <div>
+                              <label className="block text-xs font-medium text-muted-foreground mb-1">Method</label>
+                              <select
+                                value={editForm.shippingMethod}
+                                onChange={(e) => setEditForm((f) => ({ ...f, shippingMethod: e.target.value }))}
+                                className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm appearance-none cursor-pointer"
+                              >
+                                <option value="">Select method...</option>
+                                <option value="Ground">Ground</option>
+                                <option value="Express">Express</option>
+                                <option value="Priority">Priority</option>
+                                <option value="Overnight">Overnight</option>
+                                <option value="Other">Other</option>
+                              </select>
                             </div>
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">Return expires</span>
-                              <Badge className={`${new Date(order.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 > Date.now() ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} border-none`}>
-                                {formatDate(new Date(new Date(order.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(), true)}
-                              </Badge>
-                            </div>
-                          </>
-                        ) : order.status === "SHIPPED" ? (
-                          <div className="border-t border-border pt-3 mt-1 space-y-2">
-                            <div className="flex items-center gap-2">
-                              <label htmlFor={`deliver-date-${order.id}`} className="text-muted-foreground whitespace-nowrap">
-                                Delivery date
-                              </label>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-xs font-medium text-muted-foreground mb-1">Tracking Number</label>
                               <input
-                                id={`deliver-date-${order.id}`}
-                                type="date"
-                                value={deliverDate}
-                                onChange={(e) => setDeliverDate(e.target.value)}
-                                className="flex-1 px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm"
+                                type="text"
+                                value={editForm.trackingNumber}
+                                onChange={(e) => setEditForm((f) => ({ ...f, trackingNumber: e.target.value }))}
+                                className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm"
                               />
                             </div>
-                            {deliverError && (
-                              <p className="text-destructive text-xs">{deliverError}</p>
-                            )}
-                            <Button
-                              onClick={() => handleMarkAsDelivered(order.id)}
-                              disabled={deliverLoading}
-                              variant="outline"
-                              className="w-full"
-                              size="sm"
-                            >
-                              {deliverLoading ? "Updating..." : "Mark as Delivered"}
-                            </Button>
+                            <div>
+                              <label className="block text-xs font-medium text-muted-foreground mb-1">Ship Date</label>
+                              <input
+                                type="date"
+                                value={editForm.shippedAt}
+                                onChange={(e) => setEditForm((f) => ({ ...f, shippedAt: e.target.value }))}
+                                className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm"
+                              />
+                            </div>
                           </div>
-                        ) : (
+                          {order.status === "DELIVERED" && (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-xs font-medium text-muted-foreground mb-1">Delivery Date</label>
+                                <input
+                                  type="date"
+                                  value={editForm.deliveredAt}
+                                  onChange={(e) => setEditForm((f) => ({ ...f, deliveredAt: e.target.value }))}
+                                  className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm"
+                                />
+                              </div>
+                            </div>
+                          )}
+                          <div>
+                            <label className="block text-xs font-medium text-muted-foreground mb-1">Shipping Notes</label>
+                            <textarea
+                              rows={2}
+                              value={editForm.shippingNotes}
+                              onChange={(e) => setEditForm((f) => ({ ...f, shippingNotes: e.target.value }))}
+                              className="w-full px-3 py-1.5 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm resize-none"
+                            />
+                          </div>
+                          {editError && (
+                            <div className="bg-destructive/10 border border-destructive/20 text-destructive px-3 py-2 rounded-ui text-sm">
+                              {editError}
+                            </div>
+                          )}
+                          <Button
+                            onClick={() => handleSaveEdit(order.id, order.status)}
+                            disabled={editLoading}
+                            className="w-full"
+                            size="sm"
+                          >
+                            {editLoading ? "Saving..." : "Save Changes"}
+                          </Button>
+                        </div>
+                      ) : (
+                        /* ─── Read-only Timeline ─── */
+                        <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Delivered</span>
-                            <span className="text-foreground">—</span>
+                            <span className="text-muted-foreground">Order placed</span>
+                            <span className="text-foreground">{formatDateTime(order.createdAt)}</span>
                           </div>
-                        )}
-                      </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Shipped</span>
+                            <span className="text-foreground">
+                              {order.shippedAt ? formatDate(order.shippedAt, true) : "Not yet shipped"}
+                            </span>
+                          </div>
+                          {order.carrier && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Carrier</span>
+                              <span className="text-foreground">{order.carrier}</span>
+                            </div>
+                          )}
+                          {order.shippingMethod && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Method</span>
+                              <span className="text-foreground">{order.shippingMethod}</span>
+                            </div>
+                          )}
+                          {order.trackingNumber && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Tracking #</span>
+                              <span className="text-foreground font-mono">{order.trackingNumber}</span>
+                            </div>
+                          )}
+                          {order.shippingNotes && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Notes</span>
+                              <span className="text-foreground">{order.shippingNotes}</span>
+                            </div>
+                          )}
+                          {order.deliveredAt ? (
+                            <>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Delivered</span>
+                                <span className="text-foreground">{formatDate(order.deliveredAt, true)}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Warranty expires</span>
+                                <Badge className={`${order.warrantyExpiresAt && new Date(order.warrantyExpiresAt).getTime() > Date.now() ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} border-none`}>
+                                  {formatDate(order.warrantyExpiresAt, true)}
+                                </Badge>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Return expires</span>
+                                <Badge className={`${new Date(order.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 > Date.now() ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} border-none`}>
+                                  {formatDate(new Date(new Date(order.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000).toISOString(), true)}
+                                </Badge>
+                              </div>
+                              {/* Revert delivered */}
+                              <div className="border-t border-border pt-3 mt-1">
+                                {revertConfirmId === `${order.id}-delivered` ? (
+                                  <div className="space-y-2">
+                                    <p className="text-xs text-destructive">This will clear the delivery date and warranty. Are you sure?</p>
+                                    <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-ui px-2 py-1.5">A delivery confirmation email was already sent to the customer. You may want to contact them manually to clarify.</p>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        onClick={() => handleRevert(order.id, "REVERT_TO_SHIPPED")}
+                                        disabled={revertLoading}
+                                        variant="destructive"
+                                        size="sm"
+                                        className="flex-1"
+                                      >
+                                        {revertLoading ? "Reverting..." : "Confirm"}
+                                      </Button>
+                                      <Button
+                                        onClick={() => setRevertConfirmId(null)}
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setRevertConfirmId(`${order.id}-delivered`)}
+                                    className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                                  >
+                                    Unmark as Delivered
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          ) : order.status === "SHIPPED" ? (
+                            <div className="border-t border-border pt-3 mt-1 space-y-2">
+                              <div className="flex items-center gap-2">
+                                <label htmlFor={`deliver-date-${order.id}`} className="text-muted-foreground whitespace-nowrap">
+                                  Delivery date <span className="text-destructive">*</span>
+                                </label>
+                                <input
+                                  id={`deliver-date-${order.id}`}
+                                  type="date"
+                                  required
+                                  value={deliverDate}
+                                  onChange={(e) => setDeliverDate(e.target.value)}
+                                  className={`flex-1 px-3 py-1.5 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm ${deliverAttempted && !deliverDate ? "border-destructive" : "border-input"}`}
+                                />
+                              </div>
+                              {deliverError && (
+                                <p className="text-destructive text-xs">{deliverError}</p>
+                              )}
+                              <Button
+                                onClick={() => handleMarkAsDelivered(order.id)}
+                                disabled={deliverLoading}
+                                variant="outline"
+                                className="w-full"
+                                size="sm"
+                              >
+                                {deliverLoading ? "Updating..." : "Mark as Delivered"}
+                              </Button>
+                              {/* Revert shipped */}
+                              <div className="border-t border-border pt-2 mt-1">
+                                {revertConfirmId === `${order.id}-shipped` ? (
+                                  <div className="space-y-2">
+                                    <p className="text-xs text-destructive">This will clear all shipping info and revert to Paid. Are you sure?</p>
+                                    <p className="text-xs text-orange-600 bg-orange-50 border border-orange-200 rounded-ui px-2 py-1.5">A shipping confirmation email was already sent to the customer. You may want to contact them manually to clarify.</p>
+                                    <div className="flex gap-2">
+                                      <Button
+                                        onClick={() => handleRevert(order.id, "REVERT_TO_PAID")}
+                                        disabled={revertLoading}
+                                        variant="destructive"
+                                        size="sm"
+                                        className="flex-1"
+                                      >
+                                        {revertLoading ? "Reverting..." : "Confirm"}
+                                      </Button>
+                                      <Button
+                                        onClick={() => setRevertConfirmId(null)}
+                                        variant="outline"
+                                        size="sm"
+                                        className="flex-1"
+                                      >
+                                        Cancel
+                                      </Button>
+                                    </div>
+                                  </div>
+                                ) : (
+                                  <button
+                                    onClick={() => setRevertConfirmId(`${order.id}-shipped`)}
+                                    className="text-xs text-muted-foreground hover:text-destructive transition-colors cursor-pointer"
+                                  >
+                                    Unmark as Shipped
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Delivered</span>
+                              <span className="text-foreground">—</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
 
                     {/* Shipping Action (PAID orders only) */}
@@ -756,17 +1107,18 @@ export default function OrdersAdminPage() {
                                 htmlFor={`carrier-${order.id}`}
                                 className="block text-sm font-medium text-foreground mb-1"
                               >
-                                Carrier
+                                Carrier <span className="text-destructive">*</span>
                               </label>
                               <select
                                 id={`carrier-${order.id}`}
+                                required
                                 value={shippingOrderId === order.id ? shipForm.carrier : ""}
                                 onFocus={() => setShippingOrderId(order.id)}
                                 onChange={(e) => {
                                   setShippingOrderId(order.id);
                                   setShipForm((f) => ({ ...f, carrier: e.target.value }));
                                 }}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer"
+                                className={`w-full px-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer ${shipAttempted && !shipForm.carrier ? "border-destructive" : "border-input"}`}
                               >
                                 <option value="">Select carrier...</option>
                                 <option value="USPS">USPS</option>
@@ -781,17 +1133,18 @@ export default function OrdersAdminPage() {
                                 htmlFor={`method-${order.id}`}
                                 className="block text-sm font-medium text-foreground mb-1"
                               >
-                                Shipping Method
+                                Shipping Method <span className="text-destructive">*</span>
                               </label>
                               <select
                                 id={`method-${order.id}`}
+                                required
                                 value={shippingOrderId === order.id ? shipForm.shippingMethod : ""}
                                 onFocus={() => setShippingOrderId(order.id)}
                                 onChange={(e) => {
                                   setShippingOrderId(order.id);
                                   setShipForm((f) => ({ ...f, shippingMethod: e.target.value }));
                                 }}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer"
+                                className={`w-full px-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer ${shipAttempted && !shipForm.shippingMethod ? "border-destructive" : "border-input"}`}
                               >
                                 <option value="">Select method...</option>
                                 <option value="Ground">Ground</option>
@@ -810,19 +1163,20 @@ export default function OrdersAdminPage() {
                                 htmlFor={`tracking-${order.id}`}
                                 className="block text-sm font-medium text-foreground mb-1"
                               >
-                                Tracking Number
+                                Tracking Number <span className="text-destructive">*</span>
                               </label>
                               <input
                                 id={`tracking-${order.id}`}
                                 type="text"
+                                required
                                 value={shippingOrderId === order.id ? shipForm.trackingNumber : ""}
                                 onFocus={() => setShippingOrderId(order.id)}
                                 onChange={(e) => {
                                   setShippingOrderId(order.id);
                                   setShipForm((f) => ({ ...f, trackingNumber: e.target.value }));
                                 }}
-                                placeholder="Enter tracking number (optional)"
-                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                placeholder="Enter tracking number"
+                                className={`w-full px-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${shipAttempted && !shipForm.trackingNumber.trim() ? "border-destructive" : "border-input"}`}
                               />
                             </div>
                             <div>
@@ -830,18 +1184,19 @@ export default function OrdersAdminPage() {
                                 htmlFor={`shipdate-${order.id}`}
                                 className="block text-sm font-medium text-foreground mb-1"
                               >
-                                Ship Date
+                                Ship Date <span className="text-destructive">*</span>
                               </label>
                               <input
                                 id={`shipdate-${order.id}`}
                                 type="date"
+                                required
                                 value={shippingOrderId === order.id ? shipForm.shippedAt : new Date().toISOString().split("T")[0]}
                                 onFocus={() => setShippingOrderId(order.id)}
                                 onChange={(e) => {
                                   setShippingOrderId(order.id);
                                   setShipForm((f) => ({ ...f, shippedAt: e.target.value }));
                                 }}
-                                className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                className={`w-full px-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${shipAttempted && !shipForm.shippedAt ? "border-destructive" : "border-input"}`}
                               />
                             </div>
                           </div>
@@ -927,7 +1282,8 @@ export default function OrdersAdminPage() {
                 </div>
               )}
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

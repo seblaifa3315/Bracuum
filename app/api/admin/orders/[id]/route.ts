@@ -76,6 +76,31 @@ export async function PATCH(
       if (shippingNotes && typeof shippingNotes === 'string') {
         updateData.shippingNotes = shippingNotes.trim();
       }
+    } else if (status === 'REVERT_TO_PAID') {
+      // Revert SHIPPED → PAID: clear all shipping fields
+      if (order.status !== 'SHIPPED') {
+        return NextResponse.json(
+          { error: 'Can only revert SHIPPED orders back to PAID' },
+          { status: 400 }
+        );
+      }
+      updateData.status = 'PAID';
+      updateData.shippedAt = null;
+      updateData.trackingNumber = null;
+      updateData.carrier = null;
+      updateData.shippingMethod = null;
+      updateData.shippingNotes = null;
+    } else if (status === 'REVERT_TO_SHIPPED') {
+      // Revert DELIVERED → SHIPPED: clear delivery/warranty fields
+      if (order.status !== 'DELIVERED') {
+        return NextResponse.json(
+          { error: 'Can only revert DELIVERED orders back to SHIPPED' },
+          { status: 400 }
+        );
+      }
+      updateData.status = 'SHIPPED';
+      updateData.deliveredAt = null;
+      updateData.warrantyExpiresAt = null;
     } else if (status) {
       // Generic status update — validate the status value
       const validStatuses = [
@@ -88,11 +113,11 @@ export async function PATCH(
       updateData.status = status;
     }
 
-    // Mark as delivered
+    // Mark as delivered (from SHIPPED) or update delivery date (on DELIVERED)
     if (deliveredAt && typeof deliveredAt === 'string') {
-      if (order.status !== 'SHIPPED') {
+      if (order.status !== 'SHIPPED' && order.status !== 'DELIVERED') {
         return NextResponse.json(
-          { error: 'Can only mark SHIPPED orders as delivered' },
+          { error: 'Can only set delivery date on SHIPPED or DELIVERED orders' },
           { status: 400 }
         );
       }
@@ -103,6 +128,18 @@ export async function PATCH(
       updateData.status = 'DELIVERED';
       updateData.deliveredAt = deliveredDate;
       updateData.warrantyExpiresAt = warrantyExpires;
+    }
+
+    // Edit shipping fields on already shipped/delivered orders (no status change)
+    if (!status && !deliveredAt) {
+      const isShippedOrDelivered = order.status === 'SHIPPED' || order.status === 'DELIVERED';
+      if (isShippedOrDelivered) {
+        if (trackingNumber !== undefined) updateData.trackingNumber = typeof trackingNumber === 'string' ? trackingNumber.trim() : null;
+        if (carrier !== undefined) updateData.carrier = typeof carrier === 'string' ? carrier.trim() : null;
+        if (shippingMethod !== undefined) updateData.shippingMethod = typeof shippingMethod === 'string' ? shippingMethod.trim() : null;
+        if (shippingNotes !== undefined) updateData.shippingNotes = typeof shippingNotes === 'string' ? shippingNotes.trim() : null;
+        if (shippedAt !== undefined) updateData.shippedAt = shippedAt ? new Date(shippedAt + 'T12:00:00Z') : null;
+      }
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -117,8 +154,9 @@ export async function PATCH(
       },
     });
 
-    // Send emails in background
-    if (updateData.status === 'SHIPPED') {
+    // Send emails in background (skip for revert actions)
+    const isRevert = status === 'REVERT_TO_PAID' || status === 'REVERT_TO_SHIPPED';
+    if (updateData.status === 'SHIPPED' && !isRevert) {
       after(async () => {
         try {
           await sendShippingConfirmation({
@@ -135,7 +173,7 @@ export async function PATCH(
       });
     }
 
-    if (updateData.status === 'DELIVERED') {
+    if (updateData.status === 'DELIVERED' && !isRevert) {
       after(async () => {
         try {
           await sendDeliveryConfirmation({
