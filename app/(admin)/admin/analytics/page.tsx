@@ -4,10 +4,7 @@ import { useState, useEffect, useCallback, Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import TimeRangeFilter from "@/components/admin/analytics/TimeRangeFilter";
 import KpiCards from "@/components/admin/analytics/KpiCards";
-import RevenueChart from "@/components/admin/analytics/RevenueChart";
-import RevenueBarChart from "@/components/admin/analytics/RevenueBarChart";
-import QuantityChart from "@/components/admin/analytics/QuantityChart";
-import QuantityBarChart from "@/components/admin/analytics/QuantityBarChart";
+import SalesChart from "@/components/admin/analytics/SalesChart";
 import OrderStatusChart from "@/components/admin/analytics/OrderStatusChart";
 import ReturnsWarrantySection from "@/components/admin/analytics/ReturnsWarrantySection";
 import ShippingFulfillmentSection from "@/components/admin/analytics/ShippingFulfillmentSection";
@@ -135,24 +132,9 @@ function AnalyticsPage() {
         <KpiCards data={data.kpi} timeRange={timeRange} />
       </div>
 
-      {/* Revenue Breakdown Bar Chart */}
+      {/* Sales Chart */}
       <div className="mb-6">
-        <RevenueBarChart data={data.revenueOverTime} />
-      </div>
-
-      {/* Revenue Chart */}
-      <div className="mb-6">
-        <RevenueChart data={data.revenueOverTime} />
-      </div>
-
-      {/* Units Sold Breakdown Bar Chart */}
-      <div className="mb-6">
-        <QuantityBarChart data={data.revenueOverTime} />
-      </div>
-
-      {/* Cumulative Units Sold */}
-      <div className="mb-6">
-        <QuantityChart data={data.revenueOverTime} />
+        <SalesChart data={data.revenueOverTime} />
       </div>
 
       {/* Order Status + Returns & Warranty */}
