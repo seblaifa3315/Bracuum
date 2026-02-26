@@ -104,8 +104,7 @@ export async function PATCH(
     } else if (status) {
       // Generic status update — validate the status value
       const validStatuses = [
-        'NEW', 'PREORDER_PLACED', 'PREORDER_WAITING', 'PAID',
-        'SHIPPED', 'DELIVERED', 'RETURN_REQUESTED', 'RETURN_RECEIVED', 'REFUNDED', 'CANCELLED',
+        'PAID', 'SHIPPED', 'DELIVERED', 'RETURN_REQUESTED', 'RETURN_RECEIVED', 'REFUNDED', 'CANCELLED',
       ];
       if (!validStatuses.includes(status)) {
         return NextResponse.json({ error: 'Invalid status' }, { status: 400 });

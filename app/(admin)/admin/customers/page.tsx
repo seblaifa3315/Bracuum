@@ -28,9 +28,6 @@ import Link from "next/link";
 
 // ─── Types ───────────────────────────────────────────────────────────
 type OrderStatus =
-  | "NEW"
-  | "PREORDER_PLACED"
-  | "PREORDER_WAITING"
   | "PAID"
   | "SHIPPED"
   | "DELIVERED"
@@ -95,9 +92,6 @@ const ITEMS_PER_PAGE = 20;
 
 // ─── Helpers ─────────────────────────────────────────────────────────
 const STATUS_LABELS: Record<OrderStatus, string> = {
-  NEW: "New",
-  PREORDER_PLACED: "Pre-order Placed",
-  PREORDER_WAITING: "Pre-order Waiting",
   PAID: "Paid",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
@@ -108,9 +102,6 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
-  NEW: "bg-blue-100 text-blue-700",
-  PREORDER_PLACED: "bg-purple-100 text-purple-700",
-  PREORDER_WAITING: "bg-purple-100 text-purple-700",
   PAID: "bg-red-100 text-red-700",
   SHIPPED: "bg-yellow-100 text-yellow-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",

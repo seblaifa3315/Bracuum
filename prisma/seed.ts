@@ -85,7 +85,6 @@ const WARRANTY_REASONS = ["DEFECT", "SHIPPING_DAMAGE", "MALFUNCTION", "OTHER"] a
 // ─── Order generation ────────────────────────────────────────────────
 
 type OrderStatus =
-  | "NEW" | "PREORDER_PLACED" | "PREORDER_WAITING"
   | "PAID" | "SHIPPED" | "DELIVERED"
   | "RETURN_REQUESTED" | "RETURN_RECEIVED" | "REFUNDED" | "CANCELLED";
 
@@ -128,13 +127,12 @@ async function main() {
     const rand = Math.random();
 
     if (ageDays < 3) {
-      // Very recent: mostly NEW or PAID
-      status = rand < 0.4 ? "NEW" : "PAID";
+      // Very recent: mostly PAID
+      status = rand < 0.8 ? "PAID" : "SHIPPED";
     } else if (ageDays < 14) {
       // Recent: mix of PAID and SHIPPED
-      if (rand < 0.1) status = "NEW";
-      else if (rand < 0.5) status = "PAID";
-      else if (rand < 0.85) status = "SHIPPED";
+      if (rand < 0.4) status = "PAID";
+      else if (rand < 0.8) status = "SHIPPED";
       else status = "DELIVERED";
     } else if (ageDays < 60) {
       // Medium: mostly DELIVERED
@@ -220,7 +218,7 @@ async function main() {
       taxAmount,
       shippingAmount: SHIPPING_FEE,
       totalAmount,
-      stripeFee: status === "NEW" || status === "CANCELLED" ? null : stripeFee,
+      stripeFee: status === "CANCELLED" ? null : stripeFee,
       currency: "usd",
       status,
       isPreOrder: false,
@@ -240,8 +238,8 @@ async function main() {
       returnRequestedAt,
       returnReceivedAt,
       refundedAt,
-      customerEmailSentAt: status !== "NEW" ? addDays(createdAt, 0) : null,
-      sellerEmailSentAt: status !== "NEW" ? addDays(createdAt, 0) : null,
+      customerEmailSentAt: addDays(createdAt, 0),
+      sellerEmailSentAt: addDays(createdAt, 0),
       createdAt,
     });
   }

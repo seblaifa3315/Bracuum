@@ -141,9 +141,6 @@ model OrderCounter {
 //////////////////////
 
 enum OrderStatus {
-  NEW
-  PREORDER_PLACED
-  PREORDER_WAITING
   PAID
   SHIPPED
   DELIVERED

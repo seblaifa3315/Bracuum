@@ -4,9 +4,6 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 import type { OrdersByStatus } from "./types";
 
 const STATUS_LABELS: Record<string, string> = {
-  NEW: "New",
-  PREORDER_PLACED: "Pre-order Placed",
-  PREORDER_WAITING: "Pre-order Waiting",
   PAID: "Paid",
   SHIPPED: "Shipped",
   DELIVERED: "Delivered",
@@ -17,9 +14,6 @@ const STATUS_LABELS: Record<string, string> = {
 };
 
 const STATUS_HEX: Record<string, string> = {
-  NEW: "#3b82f6",
-  PREORDER_PLACED: "#8b5cf6",
-  PREORDER_WAITING: "#a78bfa",
   PAID: "#ef4444",
   SHIPPED: "#f59e0b",
   DELIVERED: "#10b981",
