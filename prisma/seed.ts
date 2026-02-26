@@ -222,7 +222,7 @@ async function main() {
       totalAmount,
       stripeFee: status === "NEW" || status === "CANCELLED" ? null : stripeFee,
       currency: "usd",
-      status: status as string,
+      status,
       isPreOrder: false,
       stripeCheckoutSessionId: `cs_seed_${orderNumber}_${Date.now()}_${randomInt(1000, 9999)}`,
       shippingAddress,
