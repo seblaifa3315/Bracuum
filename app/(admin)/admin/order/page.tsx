@@ -10,6 +10,8 @@ import {
   Search,
   ChevronDown,
   ChevronUp,
+  ChevronLeft,
+  ChevronRight,
   Package,
   Truck,
   Clock,
@@ -92,6 +94,8 @@ interface Order {
 
 type SortOption = "newest" | "oldest" | "highest" | "lowest";
 
+const ITEMS_PER_PAGE = 20;
+
 // ─── Helpers ─────────────────────────────────────────────────────────
 const STATUS_LABELS: Record<OrderStatus, string> = {
   NEW: "New",
@@ -164,6 +168,9 @@ function OrdersAdminPage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [sortOption, setSortOption] = useState<SortOption>("newest");
+
+  // Pagination
+  const [currentPage, setCurrentPage] = useState(1);
 
   // Ship action
   const [shippingOrderId, setShippingOrderId] = useState<string | null>(null);
@@ -286,6 +293,13 @@ function OrdersAdminPage() {
 
     return result;
   }, [orders, statusFilter, searchQuery, sortOption]);
+
+  // ─── Pagination ─────────────────────────────────────────────────────
+  const totalPages = Math.max(1, Math.ceil(filteredOrders.length / ITEMS_PER_PAGE));
+  const paginatedOrders = useMemo(
+    () => filteredOrders.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE),
+    [filteredOrders, currentPage]
+  );
 
   // ─── Summary Stats ──────────────────────────────────────────────────
   const stats = useMemo(() => {
@@ -571,7 +585,7 @@ function OrdersAdminPage() {
             type="text"
             placeholder="Search by order #, name, or email..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
             className="w-full pl-10 pr-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
           />
         </div>
@@ -579,7 +593,7 @@ function OrdersAdminPage() {
           <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <select
             value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
+            onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
             className="pl-10 pr-8 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer"
           >
             <option value="ALL">All Statuses</option>
@@ -597,7 +611,7 @@ function OrdersAdminPage() {
         </div>
         <select
           value={sortOption}
-          onChange={(e) => setSortOption(e.target.value as SortOption)}
+          onChange={(e) => { setSortOption(e.target.value as SortOption); setCurrentPage(1); }}
           className="px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground appearance-none cursor-pointer"
         >
           <option value="newest">Newest First</option>
@@ -626,6 +640,7 @@ function OrdersAdminPage() {
           </p>
         </div>
       ) : (
+        <>
         <div className="bg-card border border-border rounded-ui overflow-hidden">
           {/* Table Header */}
           <div className="hidden md:grid md:grid-cols-[1fr_2fr_1fr_1fr_0.5fr_1fr_0.8fr_0.8fr_auto] gap-4 px-6 py-3 bg-muted/50 border-b border-border text-sm font-medium text-muted-foreground">
@@ -641,7 +656,7 @@ function OrdersAdminPage() {
           </div>
 
           {/* Table Rows */}
-          {filteredOrders.map((order) => {
+          {paginatedOrders.map((order) => {
             const isExpanded = expandedOrderId === order.id;
             return (
             <div key={order.id} className={`border-b border-border last:border-b-0 ${isExpanded ? "bg-muted/10" : ""}`}>
@@ -1285,6 +1300,62 @@ function OrdersAdminPage() {
             );
           })}
         </div>
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-between mt-4">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredOrders.length)} of {filteredOrders.length} orders
+              </p>
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage((p) => p - 1)}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1)
+                  .filter((page) => {
+                    if (totalPages <= 7) return true;
+                    if (page === 1 || page === totalPages) return true;
+                    if (Math.abs(page - currentPage) <= 1) return true;
+                    return false;
+                  })
+                  .reduce<(number | "ellipsis")[]>((acc, page, idx, arr) => {
+                    if (idx > 0 && page - (arr[idx - 1] as number) > 1) {
+                      acc.push("ellipsis");
+                    }
+                    acc.push(page);
+                    return acc;
+                  }, [])
+                  .map((item, idx) =>
+                    item === "ellipsis" ? (
+                      <span key={`e-${idx}`} className="px-2 text-muted-foreground text-sm">...</span>
+                    ) : (
+                      <Button
+                        key={item}
+                        variant={currentPage === item ? "default" : "outline"}
+                        size="icon-sm"
+                        onClick={() => setCurrentPage(item)}
+                      >
+                        {item}
+                      </Button>
+                    )
+                  )}
+                <Button
+                  variant="outline"
+                  size="icon-sm"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage((p) => p + 1)}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );
