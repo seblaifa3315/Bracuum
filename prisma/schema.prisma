@@ -71,6 +71,7 @@ model Order {
 
   // Stripe integration
   stripeCheckoutSessionId      String   @unique            // Stripe Checkout session ID
+  stripePaymentIntentId        String?                    // Stripe payment intent for the main charge (needed for refunds)
   stripeDepositPaymentIntentId String?                    // Stripe payment intent for deposit
   stripeBalancePaymentIntentId String?                    // Stripe payment intent for final payment (pre-orders)
 
@@ -96,6 +97,8 @@ model Order {
   returnRequestedAt            DateTime?                  // Customer requested return
   returnReceivedAt             DateTime?                  // Seller received returned product
   refundedAt                   DateTime?                  // Refund processed
+  returnReason                 String?                    // Reason for return (CHANGED_MIND, DEFECTIVE, NOT_AS_DESCRIBED, OTHER)
+  returnCustomerNote           String?                    // Free text from customer explaining the return
 
   // Warranty
   deliveredAt                  DateTime?                  // Timestamp when order was delivered

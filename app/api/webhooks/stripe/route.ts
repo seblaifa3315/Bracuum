@@ -189,6 +189,7 @@ async function handleCheckoutSessionCompleted(session: Stripe.Checkout.Session) 
           currency: fullSession.currency || 'usd',
           status: 'PAID',
           stripeCheckoutSessionId: session.id,
+          stripePaymentIntentId: typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id || null,
           shippingAddress: (shippingAddress || {}) as object,
           addressLine1: shippingAddress?.line1 || null,
           addressLine2: shippingAddress?.line2 || null,
