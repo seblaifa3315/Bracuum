@@ -20,7 +20,9 @@ const footerLinks = {
   ],
 };
 
-export function Footer() {
+export function Footer({ location, email, phone }: { location?: string; email?: string; phone?: string }) {
+  const contactEmail = email ?? 'contact@bracuum.com';
+  const contactPhone = phone ?? '+1 (555) 123-4567';
   const scrollToId = (id: string) => {
     const element = document.getElementById(id);
     if (element) {
@@ -59,22 +61,22 @@ export function Footer() {
             </p>
             <div className="space-y-3">
               <a
-                href="mailto:contact@bracuum.com"
+                href={`mailto:${contactEmail}`}
                 className="flex items-center gap-3 text-sm text-background/70 hover:text-background transition-colors"
               >
                 <Mail className="w-4 h-4" />
-                contact@bracuum.com
+                {contactEmail}
               </a>
               <a
-                href="tel:+1234567890"
+                href={`tel:${contactPhone.replace(/\s/g, '')}`}
                 className="flex items-center gap-3 text-sm text-background/70 hover:text-background transition-colors"
               >
                 <Phone className="w-4 h-4" />
-                +1 (234) 567-890
+                {contactPhone}
               </a>
               <div className="flex items-center gap-3 text-sm text-background/70">
                 <MapPin className="w-4 h-4" />
-                San Francisco, CA
+                {location ?? 'Las Vegas, NV'}
               </div>
             </div>
           </div>

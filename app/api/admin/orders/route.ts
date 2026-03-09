@@ -6,13 +6,13 @@ export async function GET(req: NextRequest) {
   try {
     // Auth check
     const supabase = await createClient();
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { user }, error } = await supabase.auth.getUser();
 
-    if (error || !session) {
+    if (error || !user) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const isAdmin = session.user?.user_metadata?.role === 'admin';
+    const isAdmin = user.user_metadata?.role === 'admin';
     if (!isAdmin) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }

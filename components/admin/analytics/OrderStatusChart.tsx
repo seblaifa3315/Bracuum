@@ -18,7 +18,7 @@ const STATUS_HEX: Record<string, string> = {
   SHIPPED: "#f59e0b",
   DELIVERED: "#10b981",
   RETURN_REQUESTED: "#f97316",
-  RETURN_RECEIVED: "#fb923c",
+  RETURN_RECEIVED: "#3b82f6",
   REFUNDED: "#6b7280",
   CANCELLED: "#dc2626",
 };

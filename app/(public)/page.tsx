@@ -18,6 +18,13 @@ export default async function Home() {
         console.error("Failed to fetch product:", error);
     }
 
+    const returnAddress = product?.returnShippingAddress as { city?: string; state?: string } | null;
+    const location = returnAddress?.city && returnAddress?.state
+        ? `${returnAddress.city}, ${returnAddress.state}`
+        : undefined;
+    const contactEmail = product?.contactEmail ?? undefined;
+    const contactPhone = product?.contactPhone ?? undefined;
+
     return (
         <>
             <HomeRedirect />
@@ -27,8 +34,8 @@ export default async function Home() {
             <HowItWorksSection />
             <DemoSection />
             <FAQSection />
-            <ContactSection />
-            <Footer />
+            <ContactSection location={location} email={contactEmail} phone={contactPhone} />
+            <Footer location={location} email={contactEmail} phone={contactPhone} />
         </>
     );
 }

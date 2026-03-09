@@ -12,16 +12,14 @@ export async function PATCH(
 
   // 1️⃣ Supabase session
   const supabase = await createClient();
-  const { data: { session }, error } = await supabase.auth.getSession();
+  const { data: { user }, error } = await supabase.auth.getUser();
 
-  if (error || !session) {
+  if (error || !user) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   // 2️⃣ Admin check
-  const user = session.user;
-
-  const isAdmin = user?.user_metadata?.role === 'admin';
+  const isAdmin = user.user_metadata?.role === 'admin';
   if (!isAdmin) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
@@ -34,16 +32,30 @@ export async function PATCH(
     return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
   }
 
-  // 4️⃣ Update product in database
+  // 4️⃣ Whitelist updatable fields
+  const allowedFields = [
+    'name', 'description', 'price', 'sku', 'isActive',
+    'preorderEnabled', 'preorderDepositAmount',
+    'contactEmail', 'contactPhone', 'returnShippingAddress',
+  ] as const;
+
+  const data: Record<string, unknown> = {};
+  for (const key of allowedFields) {
+    if (key in body) {
+      data[key] = body[key];
+    }
+  }
+
+  // 5️⃣ Update product in database
   try {
     const updatedProduct = await prisma.product.update({
       where: { id: productId },
-      data: body, // body can contain one or multiple fields
+      data,
     });
 
     return NextResponse.json(updatedProduct);
   } catch (err) {
-
+    console.error('Failed to update product:', err);
     return NextResponse.json({ error: 'Failed to update product' }, { status: 500 });
   }
 }

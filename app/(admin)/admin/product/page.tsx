@@ -2,7 +2,17 @@
 
 import {useState, useEffect} from "react";
 import {Button} from "@/components/ui/button";
-import {Package, DollarSign, Tag, ToggleLeft, Clock} from "lucide-react";
+import {Package, DollarSign, Tag, ToggleLeft, Clock, MapPin, Mail, Phone} from "lucide-react";
+
+interface ReturnShippingAddress {
+    name: string;
+    line1: string;
+    line2: string;
+    city: string;
+    state: string;
+    zip: string;
+    country: string;
+}
 
 interface Product {
     id: string;
@@ -13,9 +23,22 @@ interface Product {
     isActive: boolean;
     preorderEnabled: boolean;
     preorderDepositAmount: number | null;
+    contactEmail: string | null;
+    contactPhone: string | null;
+    returnShippingAddress: ReturnShippingAddress | null;
     createdAt: string;
     updatedAt: string;
 }
+
+const DEFAULT_RETURN_ADDRESS: ReturnShippingAddress = {
+    name: "",
+    line1: "",
+    line2: "",
+    city: "",
+    state: "",
+    zip: "",
+    country: "",
+};
 
 export default function ProductsAdminPage() {
     const [product, setProduct] = useState<Product | null>(null);
@@ -23,6 +46,7 @@ export default function ProductsAdminPage() {
     const [formData, setFormData] = useState<Partial<Product>>({});
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    const [fieldErrors, setFieldErrors] = useState<{ contactEmail?: string; contactPhone?: string }>({});
 
     // Fetch the product
     useEffect(() => {
@@ -43,21 +67,75 @@ export default function ProductsAdminPage() {
         }
     };
 
+    // Format phone number as +1 (XXX) XXX-XXXX
+    const formatPhoneNumber = (value: string): string => {
+        const digits = value.replace(/\D/g, "");
+        // Strip leading "1" country code so we always work with 10 local digits
+        const local = digits.startsWith("1") ? digits.slice(1) : digits;
+        if (local.length === 0) return "";
+        if (local.length <= 3) return `+1 (${local}`;
+        if (local.length <= 6) return `+1 (${local.slice(0, 3)}) ${local.slice(3)}`;
+        return `+1 (${local.slice(0, 3)}) ${local.slice(3, 6)}-${local.slice(6, 10)}`;
+    };
+
     // Handle input change
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const {name, value, type} = e.target;
         const inputElement = e.target as HTMLInputElement;
 
+        let finalValue: string | number | boolean = value;
+        if (type === "checkbox") {
+            finalValue = inputElement.checked;
+        } else if (type === "number") {
+            finalValue = parseInt(value) || 0;
+        } else if (name === "contactPhone") {
+            finalValue = formatPhoneNumber(value);
+        }
+
         setFormData({
             ...formData,
-            [name]: type === "checkbox" ? inputElement.checked : type === "number" ? parseInt(value) || 0 : value,
+            [name]: finalValue,
         });
+    };
+
+    // Handle return address field change
+    const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const {name, value} = e.target;
+        const currentAddress = (formData.returnShippingAddress as ReturnShippingAddress | null) || DEFAULT_RETURN_ADDRESS;
+        setFormData({
+            ...formData,
+            returnShippingAddress: {
+                ...currentAddress,
+                [name]: value,
+            },
+        });
+    };
+
+    // Validate contact fields
+    const validateContactFields = (): boolean => {
+        const errors: { contactEmail?: string; contactPhone?: string } = {};
+        const email = formData.contactEmail;
+        const phone = formData.contactPhone;
+
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            errors.contactEmail = "Please enter a valid email address";
+        }
+        if (phone) {
+            const digits = phone.replace(/\D/g, "");
+            if (digits.length !== 11) {
+                errors.contactPhone = "Phone number must have 10 digits";
+            }
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
     };
 
     // Update product
     const handleUpdateProduct = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!product) return;
+        if (!validateContactFields()) return;
 
         setLoading(true);
         setError("");
@@ -263,6 +341,187 @@ export default function ProductsAdminPage() {
                             <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
                         </label>
                     </div>
+                </div>
+
+                {/* Contact Information Card */}
+                <div className="bg-card border border-border rounded-ui p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <Mail className="w-5 h-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-card-foreground">Contact Information</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        Displayed on the landing page in the contact section and footer.
+                    </p>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label htmlFor="contactEmail" className="block text-sm font-medium text-foreground mb-2">
+                                Contact Email
+                            </label>
+                            <div className="relative">
+                                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <input
+                                    type="email"
+                                    id="contactEmail"
+                                    name="contactEmail"
+                                    value={formData.contactEmail || ""}
+                                    onChange={(e) => {
+                                        handleInputChange(e);
+                                        if (fieldErrors.contactEmail) setFieldErrors((prev) => ({...prev, contactEmail: undefined}));
+                                    }}
+                                    className={`w-full pl-10 pr-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${fieldErrors.contactEmail ? "border-destructive" : "border-input"}`}
+                                    placeholder="contact@bracuum.com"
+                                />
+                            </div>
+                            {fieldErrors.contactEmail && (
+                                <p className="text-sm text-destructive mt-1">{fieldErrors.contactEmail}</p>
+                            )}
+                        </div>
+                        <div>
+                            <label htmlFor="contactPhone" className="block text-sm font-medium text-foreground mb-2">
+                                Contact Phone
+                            </label>
+                            <div className="relative">
+                                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <input
+                                    type="tel"
+                                    id="contactPhone"
+                                    name="contactPhone"
+                                    value={formData.contactPhone || ""}
+                                    onChange={(e) => {
+                                        handleInputChange(e);
+                                        if (fieldErrors.contactPhone) setFieldErrors((prev) => ({...prev, contactPhone: undefined}));
+                                    }}
+                                    className={`w-full pl-10 pr-4 py-2 bg-background border rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground ${fieldErrors.contactPhone ? "border-destructive" : "border-input"}`}
+                                    placeholder="+1 (555) 123-4567"
+                                />
+                            </div>
+                            {fieldErrors.contactPhone && (
+                                <p className="text-sm text-destructive mt-1">{fieldErrors.contactPhone}</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Return Shipping Address Card */}
+                <div className="bg-card border border-border rounded-ui p-6">
+                    <div className="flex items-center gap-2 mb-4">
+                        <MapPin className="w-5 h-5 text-primary" />
+                        <h2 className="text-xl font-semibold text-card-foreground">Return Shipping Address</h2>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-4">
+                        This address is shown to customers when they request a return.
+                    </p>
+
+                    {(() => {
+                        const addr = (formData.returnShippingAddress as ReturnShippingAddress | null) || DEFAULT_RETURN_ADDRESS;
+                        return (
+                            <div className="space-y-4">
+                                <div>
+                                    <label htmlFor="addr-name" className="block text-sm font-medium text-foreground mb-2">
+                                        Recipient Name
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="addr-name"
+                                        name="name"
+                                        value={addr.name}
+                                        onChange={handleAddressChange}
+                                        className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                        placeholder="e.g. Bracuum Returns"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="addr-line1" className="block text-sm font-medium text-foreground mb-2">
+                                        Address Line 1
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="addr-line1"
+                                        name="line1"
+                                        value={addr.line1}
+                                        onChange={handleAddressChange}
+                                        className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                        placeholder="Street address"
+                                    />
+                                </div>
+                                <div>
+                                    <label htmlFor="addr-line2" className="block text-sm font-medium text-foreground mb-2">
+                                        Address Line 2 <span className="text-muted-foreground font-normal">(optional)</span>
+                                    </label>
+                                    <input
+                                        type="text"
+                                        id="addr-line2"
+                                        name="line2"
+                                        value={addr.line2}
+                                        onChange={handleAddressChange}
+                                        className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                        placeholder="Suite, unit, etc."
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="addr-city" className="block text-sm font-medium text-foreground mb-2">
+                                            City
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="addr-city"
+                                            name="city"
+                                            value={addr.city}
+                                            onChange={handleAddressChange}
+                                            className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                            placeholder="City"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="addr-state" className="block text-sm font-medium text-foreground mb-2">
+                                            State
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="addr-state"
+                                            name="state"
+                                            value={addr.state}
+                                            onChange={handleAddressChange}
+                                            className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                            placeholder="State"
+                                        />
+                                    </div>
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label htmlFor="addr-zip" className="block text-sm font-medium text-foreground mb-2">
+                                            ZIP Code
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="addr-zip"
+                                            name="zip"
+                                            value={addr.zip}
+                                            onChange={handleAddressChange}
+                                            className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                            placeholder="ZIP"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label htmlFor="addr-country" className="block text-sm font-medium text-foreground mb-2">
+                                            Country
+                                        </label>
+                                        <input
+                                            type="text"
+                                            id="addr-country"
+                                            name="country"
+                                            value={addr.country}
+                                            onChange={handleAddressChange}
+                                            className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
+                                            placeholder="Country"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
 
                 {/* Alert Messages */}

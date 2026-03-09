@@ -80,6 +80,17 @@ const STREETS = [
 const CARRIERS = ["USPS", "UPS", "FedEx", "DHL"];
 const SHIPPING_METHODS = ["Ground", "Express", "Priority", "Overnight"];
 
+const RETURN_REASONS = ["CHANGED_MIND", "DEFECTIVE", "NOT_AS_DESCRIBED", "OTHER"] as const;
+const RETURN_NOTES = [
+  "Product didn't meet my expectations.",
+  "Found a better alternative.",
+  "Received a damaged unit, motor doesn't spin properly.",
+  "The suction power is much weaker than advertised.",
+  "Bought by mistake, don't need it anymore.",
+  "The product looks different from the photos on the website.",
+  null, null, null, // some orders won't have notes
+];
+
 const WARRANTY_REASONS = ["DEFECT", "SHIPPING_DAMAGE", "MALFUNCTION", "OTHER"] as const;
 
 // ─── Order generation ────────────────────────────────────────────────
@@ -177,8 +188,13 @@ async function main() {
       warrantyExpiresAt = addDays(deliveredAt, 365);
     }
 
+    let returnReason: string | null = null;
+    let returnCustomerNote: string | null = null;
+
     if (["RETURN_REQUESTED", "RETURN_RECEIVED", "REFUNDED"].includes(status)) {
       returnRequestedAt = addDays(deliveredAt!, randomInt(3, 25));
+      returnReason = randomPick([...RETURN_REASONS]);
+      returnCustomerNote = randomPick(RETURN_NOTES);
     }
     if (["RETURN_RECEIVED", "REFUNDED"].includes(status)) {
       returnReceivedAt = addDays(returnRequestedAt!, randomInt(3, 10));
@@ -223,6 +239,7 @@ async function main() {
       status,
       isPreOrder: false,
       stripeCheckoutSessionId: `cs_seed_${orderNumber}_${Date.now()}_${randomInt(1000, 9999)}`,
+      stripePaymentIntentId: status !== "CANCELLED" ? `pi_seed_${orderNumber}_${randomInt(100000, 999999)}` : null,
       shippingAddress,
       addressLine1: street,
       city: location.city,
@@ -238,6 +255,8 @@ async function main() {
       returnRequestedAt,
       returnReceivedAt,
       refundedAt,
+      returnReason,
+      returnCustomerNote,
       customerEmailSentAt: addDays(createdAt, 0),
       sellerEmailSentAt: addDays(createdAt, 0),
       createdAt,

@@ -24,6 +24,7 @@ import {
   ExternalLink,
   Pencil,
   X,
+  RotateCcw,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -79,6 +80,8 @@ interface Order {
   returnRequestedAt: string | null;
   returnReceivedAt: string | null;
   refundedAt: string | null;
+  returnReason: string | null;
+  returnCustomerNote: string | null;
   customerNotes: string | null;
   customerEmailSentAt: string | null;
   customerEmailError: string | null;
@@ -109,7 +112,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   SHIPPED: "bg-yellow-100 text-yellow-700",
   DELIVERED: "bg-emerald-100 text-emerald-700",
   RETURN_REQUESTED: "bg-orange-100 text-orange-700",
-  RETURN_RECEIVED: "bg-orange-100 text-orange-700",
+  RETURN_RECEIVED: "bg-blue-100 text-blue-700",
   REFUNDED: "bg-gray-100 text-gray-600",
   CANCELLED: "bg-red-100 text-red-700",
 };
@@ -237,17 +240,21 @@ function OrdersAdminPage() {
       const now = Date.now();
       switch (statusFilter) {
         case "RETURNABLE":
-          result = result.filter((o) => o.deliveredAt && new Date(o.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 > now);
+          result = result.filter((o) => o.status === "DELIVERED" && o.deliveredAt && new Date(o.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 > now);
           break;
         case "RETURN_EXPIRED":
-          result = result.filter((o) => o.deliveredAt && new Date(o.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 <= now);
+          result = result.filter((o) => o.status === "DELIVERED" && o.deliveredAt && new Date(o.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 <= now);
           break;
-        case "WARRANTY_ACTIVE":
-          result = result.filter((o) => o.warrantyExpiresAt && new Date(o.warrantyExpiresAt).getTime() > now);
+        case "WARRANTY_ACTIVE": {
+          const voidedStatuses = ["RETURN_RECEIVED", "REFUNDED"];
+          result = result.filter((o) => !voidedStatuses.includes(o.status) && o.warrantyExpiresAt && new Date(o.warrantyExpiresAt).getTime() > now);
           break;
-        case "WARRANTY_EXPIRED":
-          result = result.filter((o) => o.warrantyExpiresAt && new Date(o.warrantyExpiresAt).getTime() <= now);
+        }
+        case "WARRANTY_EXPIRED": {
+          const voidedStatuses = ["RETURN_RECEIVED", "REFUNDED"];
+          result = result.filter((o) => !voidedStatuses.includes(o.status) && o.warrantyExpiresAt && new Date(o.warrantyExpiresAt).getTime() <= now);
           break;
+        }
         default:
           result = result.filter((o) => o.status === statusFilter);
       }
@@ -678,7 +685,13 @@ function OrdersAdminPage() {
                   {formatCents(order.totalAmount)}
                 </span>
                 <span>
-                  {order.deliveredAt ? (
+                  {order.status === "REFUNDED" ? (
+                    <Badge className="bg-gray-100 text-gray-600 border-none">Refunded</Badge>
+                  ) : order.status === "RETURN_RECEIVED" ? (
+                    <Badge className="bg-blue-100 text-blue-700 border-none">Received</Badge>
+                  ) : order.status === "RETURN_REQUESTED" ? (
+                    <Badge className="bg-orange-100 text-orange-700 border-none">Requested</Badge>
+                  ) : order.deliveredAt ? (
                     new Date(order.deliveredAt).getTime() + 30 * 24 * 60 * 60 * 1000 > Date.now() ? (
                       <Badge className="bg-green-100 text-green-700 border-none">Active</Badge>
                     ) : (
@@ -689,7 +702,9 @@ function OrdersAdminPage() {
                   )}
                 </span>
                 <span>
-                  {order.warrantyExpiresAt ? (
+                  {order.status === "REFUNDED" || order.status === "RETURN_RECEIVED" ? (
+                    <Badge className="bg-gray-100 text-gray-600 border-none">Voided</Badge>
+                  ) : order.warrantyExpiresAt ? (
                     new Date(order.warrantyExpiresAt).getTime() > Date.now() ? (
                       <Badge className="bg-green-100 text-green-700 border-none">Active</Badge>
                     ) : (
@@ -1243,6 +1258,69 @@ function OrdersAdminPage() {
                               ? "Updating..."
                               : "Mark as Shipped"}
                           </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Return Status Card — only for orders in return states */}
+                    {(order.status === "RETURN_REQUESTED" || order.status === "RETURN_RECEIVED" || order.status === "REFUNDED") && (
+                      <div className="bg-card border border-orange-200 rounded-ui p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex items-center gap-2">
+                            <RotateCcw className="w-4 h-4 text-orange-600" />
+                            <h3 className="font-semibold text-foreground">Return Status</h3>
+                          </div>
+                          <Link
+                            href={`/admin/returns`}
+                            className="text-xs text-muted-foreground hover:text-primary transition-colors"
+                          >
+                            View in Returns
+                          </Link>
+                        </div>
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Status</span>
+                            <Badge className={`${STATUS_COLORS[order.status]} border-none`}>
+                              {STATUS_LABELS[order.status]}
+                            </Badge>
+                          </div>
+                          {order.returnReason && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Reason</span>
+                              <span className="text-foreground">
+                                {({
+                                  CHANGED_MIND: "Changed mind",
+                                  DEFECTIVE: "Defective",
+                                  NOT_AS_DESCRIBED: "Not as described",
+                                  OTHER: "Other",
+                                } as Record<string, string>)[order.returnReason] || order.returnReason}
+                              </span>
+                            </div>
+                          )}
+                          {order.returnCustomerNote && (
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Customer Note</span>
+                              <p className="text-foreground bg-muted/50 rounded-ui p-2 text-xs">{order.returnCustomerNote}</p>
+                            </div>
+                          )}
+                          {order.returnRequestedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Requested</span>
+                              <span className="text-foreground">{formatDateTime(order.returnRequestedAt)}</span>
+                            </div>
+                          )}
+                          {order.returnReceivedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Received</span>
+                              <span className="text-foreground">{formatDateTime(order.returnReceivedAt)}</span>
+                            </div>
+                          )}
+                          {order.refundedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">Refunded</span>
+                              <span className="text-foreground">{formatDateTime(order.refundedAt)}</span>
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}

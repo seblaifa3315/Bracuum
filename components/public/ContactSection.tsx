@@ -11,18 +11,18 @@ const XIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
-const contactInfo = {
-  email: 'contact@bracuum.com',
-  phone: '+1 (555) 123-4567',
-  city: 'San Francisco, CA',
-  socials: [
-    { name: 'Twitter', url: 'https://twitter.com/bracuum', icon: XIcon },
-    { name: 'Instagram', url: 'https://instagram.com/bracuum', icon: Instagram },
-    { name: 'LinkedIn', url: 'https://linkedin.com/company/bracuum', icon: Linkedin },
-  ],
-};
+const DEFAULT_EMAIL = 'contact@bracuum.com';
+const DEFAULT_PHONE = '+1 (555) 123-4567';
 
-export function ContactSection() {
+const socials = [
+  { name: 'Twitter', url: 'https://twitter.com/bracuum', icon: XIcon },
+  { name: 'Instagram', url: 'https://instagram.com/bracuum', icon: Instagram },
+  { name: 'LinkedIn', url: 'https://linkedin.com/company/bracuum', icon: Linkedin },
+];
+
+export function ContactSection({ location, email, phone }: { location?: string; email?: string; phone?: string }) {
+  const contactEmail = email ?? DEFAULT_EMAIL;
+  const contactPhone = phone ?? DEFAULT_PHONE;
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -224,7 +224,7 @@ export function ContactSection() {
               <div className="order-1 lg:order-2 space-y-2 flex-1 sm:flex-none sm:w-full max-w-xs lg:max-w-none">
                 {/* Email */}
                 <a
-                  href={`mailto:${contactInfo.email}`}
+                  href={`mailto:${contactEmail}`}
                   className="flex items-center gap-3 group py-1"
                 >
                   <div className="w-9 h-9 rounded-ui bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
@@ -233,14 +233,14 @@ export function ContactSection() {
                   <div>
                     <p className="text-xs text-muted-foreground">Email</p>
                     <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
-                      {contactInfo.email}
+                      {contactEmail}
                     </p>
                   </div>
                 </a>
 
                 {/* Phone */}
                 <a
-                  href={`tel:${contactInfo.phone.replace(/\s/g, '')}`}
+                  href={`tel:${contactPhone.replace(/\s/g, '')}`}
                   className="flex items-center gap-3 group py-1"
                 >
                   <div className="w-9 h-9 rounded-ui bg-accent/10 flex items-center justify-center group-hover:bg-accent/20 transition-colors">
@@ -249,7 +249,7 @@ export function ContactSection() {
                   <div>
                     <p className="text-xs text-muted-foreground">Phone</p>
                     <p className="text-sm font-medium text-foreground group-hover:text-accent transition-colors">
-                      {contactInfo.phone}
+                      {contactPhone}
                     </p>
                   </div>
                 </a>
@@ -261,7 +261,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <p className="text-xs text-muted-foreground">Location</p>
-                    <p className="text-sm font-medium text-foreground">{contactInfo.city}</p>
+                    <p className="text-sm font-medium text-foreground">{location ?? 'Las Vegas, NV'}</p>
                   </div>
                 </div>
 
@@ -269,7 +269,7 @@ export function ContactSection() {
                 <div className="mt-3 pt-3 border-t border-border sm:mt-4 sm:pt-4">
                   <p className="text-xs text-muted-foreground mb-2">Follow us</p>
                   <div className="flex gap-2">
-                    {contactInfo.socials.map((social, index) => {
+                    {socials.map((social, index) => {
                       const Icon = social.icon;
                       return (
                         <motion.a

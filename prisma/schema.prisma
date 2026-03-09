@@ -31,6 +31,13 @@ model Product {
   preorderEnabled        Boolean  @default(false)    // Enable pre-order instead of full purchase
   preorderDepositAmount  Int?                        // set Pre-order deposit in cents (<= price)
 
+  // Public contact info (displayed on landing page)
+  contactEmail           String?                    // Public-facing contact email
+  contactPhone           String?                    // Public-facing contact phone
+
+  // Return shipping address (JSON: { name, line1, line2?, city, state, zip, country })
+  returnShippingAddress  Json?
+
   createdAt              DateTime @default(now())    // Record creation time
   updatedAt              DateTime @updatedAt         // Last update time
 }
