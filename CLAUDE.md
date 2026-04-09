@@ -70,9 +70,9 @@ Import Prisma from the singleton: `import { prisma } from '@/lib/prisma/prisma'`
 
 ## Database Models
 
-- **Product**: Catalog items with pre-order support (`preorderEnabled`, `preorderDepositAmount`)
+- **Product**: Catalog items with pricing and availability settings
 - **Order**: Full order lifecycle with Stripe integration, shipping, returns, warranty tracking
-- **OrderStatus**: NEW, PREORDER_PLACED, PREORDER_WAITING, PAID, SHIPPED, RETURN_REQUESTED, RETURN_RECEIVED, REFUNDED, CANCELLED
+- **OrderStatus**: PAID, SHIPPED, DELIVERED, RETURN_REQUESTED, RETURN_RECEIVED, REFUNDED, RETURN_DENIED, CANCELLED
 - **WarrantyClaim**: Post-purchase warranty handling (one claim per order)
 
 ## Environment Variables

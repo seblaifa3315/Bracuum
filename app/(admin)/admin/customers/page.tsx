@@ -57,7 +57,6 @@ interface Order {
   shippingAmount: number;
   totalAmount: number;
   status: OrderStatus;
-  isPreOrder: boolean;
   warrantyClaims: WarrantyClaim[];
   returnRequestedAt: string | null;
   deliveredAt: string | null;
@@ -832,11 +831,6 @@ function CustomersAdminPage() {
                                         {order.returnRequestedAt && (
                                           <Badge className="bg-red-100 text-red-700 border-none text-xs">
                                             Return
-                                          </Badge>
-                                        )}
-                                        {order.isPreOrder && (
-                                          <Badge className="bg-purple-100 text-purple-700 border-none text-xs">
-                                            Pre-order
                                           </Badge>
                                         )}
                                       </div>

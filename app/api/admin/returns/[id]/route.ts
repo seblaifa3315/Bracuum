@@ -5,6 +5,7 @@ import { stripe } from '@/lib/stripe'
 import {
   sendReturnReceivedConfirmation,
   sendRefundConfirmation,
+  sendReturnDeniedNotification,
 } from '@/lib/email'
 
 export async function PATCH(
@@ -27,7 +28,7 @@ export async function PATCH(
 
     const { id } = await params
     const body = await request.json()
-    const { action, adminNote } = body
+    const { action } = body
 
     // Find the order
     const order = await prisma.order.findUnique({ where: { id } })
@@ -126,6 +127,48 @@ export async function PATCH(
           success: true,
           data: refundedOrder,
         })
+      }
+
+      case 'deny_return': {
+        if (order.status !== 'RETURN_REQUESTED' && order.status !== 'RETURN_RECEIVED') {
+          return NextResponse.json(
+            { error: 'Order must be in RETURN_REQUESTED or RETURN_RECEIVED status' },
+            { status: 400 }
+          )
+        }
+
+        const { reason } = body
+        if (!reason || typeof reason !== 'string' || !reason.trim()) {
+          return NextResponse.json(
+            { error: 'A reason is required to deny a return' },
+            { status: 400 }
+          )
+        }
+
+        const deniedOrder = await prisma.order.update({
+          where: { id },
+          data: {
+            status: 'RETURN_DENIED',
+            returnDeniedAt: new Date(),
+            returnDeniedReason: reason.trim(),
+          },
+        })
+
+        after(async () => {
+          try {
+            await sendReturnDeniedNotification({
+              orderNumber: deniedOrder.orderNumber,
+              firstName: deniedOrder.firstName,
+              email: deniedOrder.email,
+              reason: reason.trim(),
+            })
+            console.log('Return denied notification email sent')
+          } catch (err) {
+            console.error('Failed to send return denied email:', err)
+          }
+        })
+
+        return NextResponse.json({ success: true, data: deniedOrder })
       }
 
       default:

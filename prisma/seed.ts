@@ -237,7 +237,6 @@ async function main() {
       stripeFee: status === "CANCELLED" ? null : stripeFee,
       currency: "usd",
       status,
-      isPreOrder: false,
       stripeCheckoutSessionId: `cs_seed_${orderNumber}_${Date.now()}_${randomInt(1000, 9999)}`,
       stripePaymentIntentId: status !== "CANCELLED" ? `pi_seed_${orderNumber}_${randomInt(100000, 999999)}` : null,
       shippingAddress,

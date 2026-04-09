@@ -17,20 +17,25 @@ type ReturnAddress = {
 
 export default function ReturnPolicyPage() {
   const [returnAddress, setReturnAddress] = useState<ReturnAddress | null>(null);
+  const [contactEmail, setContactEmail] = useState("contact@bracuum.com");
 
   useEffect(() => {
-    async function fetchAddress() {
+    async function fetchProduct() {
       try {
         const res = await fetch("/api/products");
         const data = await res.json();
-        if (data.success && data.data?.[0]?.returnShippingAddress) {
-          setReturnAddress(data.data[0].returnShippingAddress as ReturnAddress);
+        const product = data.data?.[0];
+        if (product?.returnShippingAddress) {
+          setReturnAddress(product.returnShippingAddress as ReturnAddress);
+        }
+        if (product?.contactEmail) {
+          setContactEmail(product.contactEmail);
         }
       } catch {
-        // silently fail — address section just won't render
+        // silently fail — defaults will be used
       }
     }
-    fetchAddress();
+    fetchProduct();
   }, []);
 
   return (
@@ -64,7 +69,8 @@ export default function ReturnPolicyPage() {
               <p className="text-sm text-muted-foreground">
                 You may request a return within 30 days of your order being delivered.
                 Once we receive and inspect the returned product, your refund will be
-                processed within 5&ndash;10 business days.
+                processed within 5&ndash;10 business days. Return shipping costs are
+                the responsibility of the customer.
               </p>
             </div>
           </div>
@@ -112,12 +118,13 @@ export default function ReturnPolicyPage() {
                 </li>
                 <li>
                   <strong className="text-foreground">Ship it back</strong> &mdash; send the package
-                  to the return address shown below.
+                  to the return address shown below. Return shipping is at the
+                  customer&apos;s expense.
                 </li>
                 <li>
                   <strong className="text-foreground">Receive your refund</strong> &mdash; once we
-                  inspect the product, we&apos;ll process your refund within 5&ndash;10
-                  business days.
+                  receive and inspect the product, we&apos;ll process a full refund of the
+                  product price within 5&ndash;10 business days.
                 </li>
               </ol>
             </div>
@@ -157,10 +164,10 @@ export default function ReturnPolicyPage() {
           <p>
             Questions? Contact us at{" "}
             <a
-              href="mailto:support@bracuum.com"
+              href={`mailto:${contactEmail}`}
               className="text-foreground hover:underline"
             >
-              support@bracuum.com
+              {contactEmail}
             </a>
           </p>
         </div>

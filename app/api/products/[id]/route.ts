@@ -35,7 +35,6 @@ export async function PATCH(
   // 4️⃣ Whitelist updatable fields
   const allowedFields = [
     'name', 'description', 'price', 'sku', 'isActive',
-    'preorderEnabled', 'preorderDepositAmount',
     'contactEmail', 'contactPhone', 'returnShippingAddress',
   ] as const;
 

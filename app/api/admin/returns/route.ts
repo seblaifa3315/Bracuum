@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status')
 
     // Build where clause — only return-related statuses
-    const returnStatuses = ['RETURN_REQUESTED', 'RETURN_RECEIVED', 'REFUNDED'] as const
+    const returnStatuses = ['RETURN_REQUESTED', 'RETURN_RECEIVED', 'REFUNDED', 'RETURN_DENIED'] as const
     const where: Record<string, unknown> = {
       status: status && returnStatuses.includes(status as typeof returnStatuses[number])
         ? status

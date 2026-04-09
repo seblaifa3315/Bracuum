@@ -29,11 +29,12 @@ export default function ReturnRequestPage() {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
 
-  // Return address from API
+  // Return address and contact email from API
   const [returnAddress, setReturnAddress] = useState<{
     name: string; line1: string; line2?: string;
     city: string; state: string; zip: string; country: string;
   } | null>(null);
+  const [contactEmail, setContactEmail] = useState("contact@bracuum.com");
 
   const handleLookup = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +45,34 @@ export default function ReturnRequestPage() {
       return;
     }
 
-    // Move to request step — actual validation happens on submit
-    setStep("request");
+    setLookupLoading(true);
+    try {
+      const res = await fetch("/api/returns/lookup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: email.trim(),
+          orderNumber: orderNumber.trim(),
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to look up order");
+      }
+
+      if (data.contactEmail) {
+        setContactEmail(data.contactEmail);
+      }
+      setStep("request");
+    } catch (err) {
+      setLookupError(
+        err instanceof Error ? err.message : "Failed to look up order"
+      );
+    } finally {
+      setLookupLoading(false);
+    }
   };
 
   const handleSubmitReturn = async (e: React.FormEvent) => {
@@ -281,7 +308,7 @@ export default function ReturnRequestPage() {
                 <li>
                   Include your order number (<strong className="text-foreground">{orderNumber}</strong>) inside the package
                 </li>
-                <li>Ship the package to the return address below</li>
+                <li>Ship the package to the return address below (return shipping is at your expense)</li>
                 <li>Once we receive and inspect the product, we&apos;ll process your refund within 5-10 business days</li>
               </ol>
             </div>
@@ -327,10 +354,10 @@ export default function ReturnRequestPage() {
             <br />
             Questions? Contact us at{" "}
             <a
-              href="mailto:support@bracuum.com"
+              href={`mailto:${contactEmail}`}
               className="text-foreground hover:underline"
             >
-              support@bracuum.com
+              {contactEmail}
             </a>
           </p>
         </div>

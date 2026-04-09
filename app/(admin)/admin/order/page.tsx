@@ -36,6 +36,7 @@ type OrderStatus =
   | "RETURN_REQUESTED"
   | "RETURN_RECEIVED"
   | "REFUNDED"
+  | "RETURN_DENIED"
   | "CANCELLED";
 
 interface WarrantyClaim {
@@ -61,9 +62,6 @@ interface Order {
   stripeFee: number | null;
   currency: string;
   status: OrderStatus;
-  isPreOrder: boolean;
-  depositAmount: number | null;
-  remainingAmount: number | null;
   addressLine1: string | null;
   addressLine2: string | null;
   city: string | null;
@@ -104,6 +102,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   RETURN_REQUESTED: "Return Requested",
   RETURN_RECEIVED: "Return Received",
   REFUNDED: "Refunded",
+  RETURN_DENIED: "Return Denied",
   CANCELLED: "Cancelled",
 };
 
@@ -114,6 +113,7 @@ const STATUS_COLORS: Record<OrderStatus, string> = {
   RETURN_REQUESTED: "bg-orange-100 text-orange-700",
   RETURN_RECEIVED: "bg-blue-100 text-blue-700",
   REFUNDED: "bg-gray-100 text-gray-600",
+  RETURN_DENIED: "bg-red-100 text-red-700",
   CANCELLED: "bg-red-100 text-red-700",
 };
 
@@ -1263,7 +1263,7 @@ function OrdersAdminPage() {
                     )}
 
                     {/* Return Status Card — only for orders in return states */}
-                    {(order.status === "RETURN_REQUESTED" || order.status === "RETURN_RECEIVED" || order.status === "REFUNDED") && (
+                    {(order.status === "RETURN_REQUESTED" || order.status === "RETURN_RECEIVED" || order.status === "REFUNDED" || order.status === "RETURN_DENIED") && (
                       <div className="bg-card border border-orange-200 rounded-ui p-4">
                         <div className="flex items-center justify-between mb-3">
                           <div className="flex items-center gap-2">

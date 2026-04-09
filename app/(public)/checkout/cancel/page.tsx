@@ -1,7 +1,16 @@
 import Link from 'next/link'
 import { XCircle, ShoppingCart, ArrowLeft } from 'lucide-react'
+import { prisma } from '@/lib/prisma/prisma'
 
-export default function CheckoutCancel() {
+export default async function CheckoutCancel() {
+  let contactEmail = 'contact@bracuum.com'
+  try {
+    const product = await prisma.product.findFirst({ select: { contactEmail: true } })
+    if (product?.contactEmail) contactEmail = product.contactEmail
+  } catch {
+    // use default
+  }
+
   return (
     <div className="pt-24 lg:pt-32 px-4 max-w-2xl mx-auto pb-12">
       {/* Cancel Header */}
@@ -26,8 +35,8 @@ export default function CheckoutCancel() {
         </p>
         <p className="text-gray-600 text-sm">
           If you experienced any issues or have questions, please contact us at{' '}
-          <a href="mailto:support@bracuum.com" className="text-black underline">
-            support@bracuum.com
+          <a href={`mailto:${contactEmail}`} className="text-black underline">
+            {contactEmail}
           </a>
         </p>
       </div>

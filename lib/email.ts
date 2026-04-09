@@ -1,10 +1,21 @@
 import { Resend } from 'resend'
 import { createClient } from '@supabase/supabase-js'
+import { prisma } from '@/lib/prisma/prisma'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
 const FROM_EMAIL = process.env.FROM_EMAIL || 'Bracuum <onboarding@resend.dev>'
 const CONTACT_FROM_EMAIL = process.env.CONTACT_FROM_EMAIL || FROM_EMAIL
+const DEFAULT_CONTACT_EMAIL = 'contact@bracuum.com'
+
+export async function getContactEmail(): Promise<string> {
+  try {
+    const product = await prisma.product.findFirst({ select: { contactEmail: true } })
+    return product?.contactEmail || DEFAULT_CONTACT_EMAIL
+  } catch {
+    return DEFAULT_CONTACT_EMAIL
+  }
+}
 
 export async function getAdminEmails(): Promise<string[]> {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -70,6 +81,7 @@ function formatAddress(order: OrderEmailData): string {
  */
 export async function sendOrderConfirmation(order: OrderEmailData) {
   const orderNumber = order.orderNumber
+  const contactEmail = await getContactEmail()
 
   const html = `
     <!DOCTYPE html>
@@ -124,7 +136,7 @@ export async function sendOrderConfirmation(order: OrderEmailData) {
       </div>
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">© ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -255,6 +267,7 @@ export async function sendShippingConfirmation(order: {
   shippingMethod: string | null
   trackingNumber: string | null
 }) {
+  const contactEmail = await getContactEmail()
   const trackingSection = order.trackingNumber
     ? `<div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
         <h2 style="font-size: 18px; margin-top: 0;">Tracking Information</h2>
@@ -287,7 +300,7 @@ export async function sendShippingConfirmation(order: {
       ${trackingSection}
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -317,6 +330,7 @@ export async function sendDeliveryConfirmation(order: {
   firstName: string
   email: string
 }) {
+  const contactEmail = await getContactEmail()
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
   const html = `
     <!DOCTYPE html>
@@ -350,7 +364,7 @@ export async function sendDeliveryConfirmation(order: {
       </div>
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -382,6 +396,7 @@ export async function sendReturnRequestConfirmation(order: {
   returnReason: string | null
   returnShippingAddress: Record<string, string> | null
 }) {
+  const contactEmail = await getContactEmail()
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'
 
   const reasonLabels: Record<string, string> = {
@@ -414,7 +429,7 @@ export async function sendReturnRequestConfirmation(order: {
         <ol style="margin: 0; padding-left: 20px; color: #666;">
           <li>Pack the product securely in its original packaging if possible</li>
           <li>Include your order number (<strong>${order.orderNumber}</strong>) inside the package</li>
-          <li>Ship the package to the return address below</li>
+          <li>Ship the package to the return address below (return shipping is at your expense)</li>
           <li>Once we receive and inspect the product, we'll process your refund</li>
         </ol>
       </div>
@@ -435,11 +450,11 @@ export async function sendReturnRequestConfirmation(order: {
       ` : ''}
 
       <div style="background: #fffbeb; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-        <p style="margin: 0; color: #92400e; font-size: 14px;"><strong>Important:</strong> Please ship your return within 14 days. Refunds are typically processed within 5-10 business days after we receive the item.</p>
+        <p style="margin: 0; color: #92400e; font-size: 14px;"><strong>Important:</strong> Please ship your return within 30 days. Refunds are typically processed within 5-10 business days after we receive the item.</p>
       </div>
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -564,6 +579,7 @@ export async function sendReturnReceivedConfirmation(order: {
   firstName: string
   email: string
 }) {
+  const contactEmail = await getContactEmail()
   const html = `
     <!DOCTYPE html>
     <html>
@@ -588,7 +604,7 @@ export async function sendReturnReceivedConfirmation(order: {
       </div>
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -619,6 +635,7 @@ export async function sendRefundConfirmation(order: {
   email: string
   totalAmount: number
 }) {
+  const contactEmail = await getContactEmail()
   const html = `
     <!DOCTYPE html>
     <html>
@@ -652,7 +669,7 @@ export async function sendRefundConfirmation(order: {
       </div>
 
       <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
-        <p>Questions? Contact us at <a href="mailto:support@bracuum.com" style="color: #666;">support@bracuum.com</a></p>
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
         <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
       </div>
     </body>
@@ -672,6 +689,66 @@ export async function sendRefundConfirmation(order: {
   }
 
   console.log('Refund confirmation email sent to:', order.email)
+}
+
+/**
+ * Send return denied notification email to the customer
+ */
+export async function sendReturnDeniedNotification(order: {
+  orderNumber: string
+  firstName: string
+  email: string
+  reason: string
+}) {
+  const contactEmail = await getContactEmail()
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
+      <div style="text-align: center; margin-bottom: 30px;">
+        <h1 style="color: #000; font-size: 24px; margin-bottom: 10px;">Return Request Update</h1>
+        <p style="color: #666; font-size: 16px;">Order #${order.orderNumber}</p>
+      </div>
+
+      <div style="background: #fef2f2; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #333;">Hi ${order.firstName},</p>
+        <p style="color: #666;">After reviewing your return request for order #${order.orderNumber}, we are unable to approve it at this time.</p>
+      </div>
+
+      <div style="background: #f9f9f9; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <h2 style="font-size: 18px; margin-top: 0;">Reason</h2>
+        <p style="margin: 0; color: #666;">${order.reason}</p>
+      </div>
+
+      <div style="background: #f0f7ff; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+        <p style="margin: 0; color: #666; font-size: 14px;">If you have any questions or believe this decision was made in error, please don't hesitate to contact us at <a href="mailto:${contactEmail}" style="color: #333; font-weight: 600;">${contactEmail}</a>.</p>
+      </div>
+
+      <div style="text-align: center; color: #999; font-size: 14px; margin-top: 30px;">
+        <p>Questions? Contact us at <a href="mailto:${contactEmail}" style="color: #666;">${contactEmail}</a></p>
+        <p style="margin-top: 20px;">&copy; ${new Date().getFullYear()} Bracuum. All rights reserved.</p>
+      </div>
+    </body>
+    </html>
+  `
+
+  const { error } = await resend.emails.send({
+    from: FROM_EMAIL,
+    to: order.email,
+    subject: `Return Request Update - Order #${order.orderNumber}`,
+    html,
+  })
+
+  if (error) {
+    console.error('Failed to send return denied notification email:', error)
+    throw error
+  }
+
+  console.log('Return denied notification email sent to:', order.email)
 }
 
 /**

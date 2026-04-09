@@ -9,8 +9,6 @@ interface Product {
   price: number;
   sku: string | null;
   isActive: boolean;
-  preorderEnabled: boolean;
-  preorderDepositAmount: number | null;
   createdAt: string;
   updatedAt: string;
 }

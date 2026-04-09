@@ -2,7 +2,7 @@
 
 import {useState, useEffect} from "react";
 import {Button} from "@/components/ui/button";
-import {Package, DollarSign, Tag, ToggleLeft, Clock, MapPin, Mail, Phone} from "lucide-react";
+import {Package, DollarSign, Tag, ToggleLeft, MapPin, Mail, Phone} from "lucide-react";
 
 interface ReturnShippingAddress {
     name: string;
@@ -21,8 +21,6 @@ interface Product {
     price: number;
     sku: string | null;
     isActive: boolean;
-    preorderEnabled: boolean;
-    preorderDepositAmount: number | null;
     contactEmail: string | null;
     contactPhone: string | null;
     returnShippingAddress: ReturnShippingAddress | null;
@@ -268,53 +266,6 @@ export default function ProductsAdminPage() {
                                 Display price: ${((formData.price || 0) / 100).toFixed(2)}
                             </p>
                         </div>
-                    </div>
-                </div>
-
-                {/* Pre-order Settings Card */}
-                <div className="bg-card border border-border rounded-ui p-6">
-                    <div className="flex items-center gap-2 mb-4">
-                        <Clock className="w-5 h-5 text-primary" />
-                        <h2 className="text-xl font-semibold text-card-foreground">Pre-order Settings</h2>
-                    </div>
-
-                    <div className="space-y-4">
-                        <div className="flex items-center justify-between p-4 bg-muted rounded-ui">
-                            <div>
-                                <p className="font-medium text-foreground">Enable Pre-orders</p>
-                                <p className="text-sm text-muted-foreground">Allow customers to pre-order this product</p>
-                            </div>
-                            <label className="relative inline-flex items-center cursor-pointer">
-                                <input
-                                    type="checkbox"
-                                    name="preorderEnabled"
-                                    checked={formData.preorderEnabled || false}
-                                    onChange={handleInputChange}
-                                    className="sr-only peer"
-                                />
-                                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-ring rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary"></div>
-                            </label>
-                        </div>
-
-                        {formData.preorderEnabled && (
-                            <div>
-                                <label htmlFor="preorderDepositAmount" className="block text-sm font-medium text-foreground mb-2">
-                                    Pre-order Deposit (in cents)
-                                </label>
-                                <input
-                                    type="number"
-                                    id="preorderDepositAmount"
-                                    name="preorderDepositAmount"
-                                    value={formData.preorderDepositAmount || 0}
-                                    onChange={handleInputChange}
-                                    className="w-full px-4 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground"
-                                    min="0"
-                                />
-                                <p className="text-sm text-muted-foreground mt-1">
-                                    Display amount: ${((formData.preorderDepositAmount || 0) / 100).toFixed(2)}
-                                </p>
-                            </div>
-                        )}
                     </div>
                 </div>
 

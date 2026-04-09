@@ -27,10 +27,6 @@ model Product {
   sku                    String?                    // Internal product identifier (optional)
   isActive               Boolean  @default(true)     // Can the product be sold right now?
 
-  // Pre-order config
-  preorderEnabled        Boolean  @default(false)    // Enable pre-order instead of full purchase
-  preorderDepositAmount  Int?                        // set Pre-order deposit in cents (<= price)
-
   // Public contact info (displayed on landing page)
   contactEmail           String?                    // Public-facing contact email
   contactPhone           String?                    // Public-facing contact phone
@@ -70,17 +66,10 @@ model Order {
 
   // Order lifecycle
   status                      OrderStatus               // Current order status
-  isPreOrder                  Boolean      @default(false) // True if order is a pre-order
-
-  // Pre-order payments
-  depositAmount               Int?                       // Pre-order deposit (cents)
-  remainingAmount             Int?                       // Remaining balance for pre-order
 
   // Stripe integration
   stripeCheckoutSessionId      String   @unique            // Stripe Checkout session ID
   stripePaymentIntentId        String?                    // Stripe payment intent for the main charge (needed for refunds)
-  stripeDepositPaymentIntentId String?                    // Stripe payment intent for deposit
-  stripeBalancePaymentIntentId String?                    // Stripe payment intent for final payment (pre-orders)
 
   // Shipping info
   // Always store full Stripe object for reliability
@@ -106,6 +95,8 @@ model Order {
   refundedAt                   DateTime?                  // Refund processed
   returnReason                 String?                    // Reason for return (CHANGED_MIND, DEFECTIVE, NOT_AS_DESCRIBED, OTHER)
   returnCustomerNote           String?                    // Free text from customer explaining the return
+  returnDeniedAt               DateTime?                  // When the return was denied by admin
+  returnDeniedReason           String?                    // Admin's reason for denying the return
 
   // Warranty
   deliveredAt                  DateTime?                  // Timestamp when order was delivered
@@ -130,7 +121,6 @@ model Order {
   // Indexes for fast queries
   @@index([email])
   @@index([status])
-  @@index([status, isPreOrder])
   // stripeCheckoutSessionId has @unique (also serves as index for webhook lookups)
   @@index([createdAt])                // Order number generation, admin sorting
 }
@@ -157,6 +147,7 @@ enum OrderStatus {
   RETURN_REQUESTED
   RETURN_RECEIVED
   REFUNDED
+  RETURN_DENIED
   CANCELLED
 }
 

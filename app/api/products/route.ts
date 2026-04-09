@@ -43,7 +43,7 @@ export async function POST(req: NextRequest) {
   }
 
   // 4️⃣ Validate required fields
-  const { name, description, price, sku, isActive, preorderEnabled, preorderDepositAmount } = body;
+  const { name, description, price, sku, isActive } = body;
 
   // Validate name
   if (typeof name !== 'string' || name.trim().length === 0) {
@@ -76,14 +76,6 @@ export async function POST(req: NextRequest) {
   if (isActive !== undefined && typeof isActive !== 'boolean') {
     return NextResponse.json({ error: 'isActive must be a boolean' }, { status: 400 });
   }
-  if (preorderEnabled !== undefined && typeof preorderEnabled !== 'boolean') {
-    return NextResponse.json({ error: 'preorderEnabled must be a boolean' }, { status: 400 });
-  }
-  if (preorderDepositAmount !== undefined && preorderDepositAmount !== null) {
-    if (typeof preorderDepositAmount !== 'number' || !Number.isInteger(preorderDepositAmount) || preorderDepositAmount < 0) {
-      return NextResponse.json({ error: 'preorderDepositAmount must be a non-negative integer or null' }, { status: 400 });
-    }
-  }
 
   // 5️⃣ Create product in database
   try {
@@ -94,8 +86,6 @@ export async function POST(req: NextRequest) {
         price,
         sku: sku?.trim() || null,
         isActive: isActive ?? true,
-        preorderEnabled: preorderEnabled ?? false,
-        preorderDepositAmount: preorderDepositAmount ?? null,
       },
     });
 

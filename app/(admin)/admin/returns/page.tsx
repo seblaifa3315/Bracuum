@@ -15,6 +15,7 @@ import {
   Mail,
   CheckCircle,
   AlertCircle,
+  AlertTriangle,
   Filter,
 } from "lucide-react";
 import Link from "next/link";
@@ -23,7 +24,8 @@ import Link from "next/link";
 type OrderStatus =
   | "RETURN_REQUESTED"
   | "RETURN_RECEIVED"
-  | "REFUNDED";
+  | "REFUNDED"
+  | "RETURN_DENIED";
 
 interface ReturnOrder {
   id: string;
@@ -40,24 +42,37 @@ interface ReturnOrder {
   refundedAt: string | null;
   returnReason: string | null;
   returnCustomerNote: string | null;
+  returnDeniedAt: string | null;
+  returnDeniedReason: string | null;
   deliveredAt: string | null;
   stripePaymentIntentId: string | null;
   createdAt: string;
 }
 
-type TabFilter = "ALL" | "RETURN_REQUESTED" | "RETURN_RECEIVED" | "REFUNDED";
+type TabFilter = "ALL" | "RETURN_REQUESTED" | "OVERDUE" | "RETURN_RECEIVED" | "REFUNDED" | "RETURN_DENIED";
 
 // ─── Helpers ─────────────────────────────────────────────────────────
+const OVERDUE_DAYS = 30;
+
+function isOverdue(returnRequestedAt: string | null): boolean {
+  if (!returnRequestedAt) return false;
+  const requested = new Date(returnRequestedAt);
+  const now = new Date();
+  const diffMs = now.getTime() - requested.getTime();
+  return diffMs > OVERDUE_DAYS * 24 * 60 * 60 * 1000;
+}
 const STATUS_LABELS: Record<OrderStatus, string> = {
   RETURN_REQUESTED: "Pending Return",
   RETURN_RECEIVED: "Received",
   REFUNDED: "Refunded",
+  RETURN_DENIED: "Denied",
 };
 
 const STATUS_COLORS: Record<OrderStatus, string> = {
   RETURN_REQUESTED: "bg-orange-100 text-orange-700",
   RETURN_RECEIVED: "bg-blue-100 text-blue-700",
   REFUNDED: "bg-gray-100 text-gray-600",
+  RETURN_DENIED: "bg-red-100 text-red-700",
 };
 
 const REASON_LABELS: Record<string, string> = {
@@ -109,6 +124,10 @@ export default function ReturnsAdminPage() {
     label: string;
   } | null>(null);
 
+  // Deny return states
+  const [denyingOrderId, setDenyingOrderId] = useState<string | null>(null);
+  const [denyReason, setDenyReason] = useState("");
+
   useEffect(() => {
     fetchReturns();
   }, []);
@@ -131,29 +150,40 @@ export default function ReturnsAdminPage() {
   // ─── Filtering ─────────────────────────────────────────────────────
   const filteredReturns = useMemo(() => {
     if (tabFilter === "ALL") return returns;
+    if (tabFilter === "OVERDUE")
+      return returns.filter(
+        (r) => r.status === "RETURN_REQUESTED" && isOverdue(r.returnRequestedAt)
+      );
     return returns.filter((r) => r.status === tabFilter);
   }, [returns, tabFilter]);
 
   // ─── Stats ─────────────────────────────────────────────────────────
   const stats = useMemo(() => {
     const pending = returns.filter((r) => r.status === "RETURN_REQUESTED").length;
+    const overdue = returns.filter(
+      (r) => r.status === "RETURN_REQUESTED" && isOverdue(r.returnRequestedAt)
+    ).length;
     const received = returns.filter((r) => r.status === "RETURN_RECEIVED").length;
     const refunded = returns.filter((r) => r.status === "REFUNDED").length;
-    return { pending, received, refunded };
+    const denied = returns.filter((r) => r.status === "RETURN_DENIED").length;
+    return { pending, overdue, received, refunded, denied };
   }, [returns]);
 
   // ─── Action Handler ────────────────────────────────────────────────
-  const handleAction = async (orderId: string, action: string) => {
+  const handleAction = async (orderId: string, action: string, reason?: string) => {
     setActionLoading(orderId);
     setActionError("");
     setActionSuccess("");
     setConfirmAction(null);
 
     try {
+      const body: Record<string, string> = { action };
+      if (reason) body.reason = reason;
+
       const res = await fetch(`/api/admin/returns/${orderId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action }),
+        body: JSON.stringify(body),
       });
 
       const data = await res.json();
@@ -167,8 +197,11 @@ export default function ReturnsAdminPage() {
       const successMessages: Record<string, string> = {
         mark_received: "Marked as received",
         issue_refund: "Refund initiated",
+        deny_return: "Return denied",
       };
       setActionSuccess(successMessages[action] || "Action completed");
+      setDenyingOrderId(null);
+      setDenyReason("");
       setTimeout(() => setActionSuccess(""), 3000);
     } catch (err) {
       setActionError(
@@ -183,6 +216,8 @@ export default function ReturnsAdminPage() {
     setExpandedId((prev) => (prev === id ? null : id));
     setConfirmAction(null);
     setActionError("");
+    setDenyingOrderId(null);
+    setDenyReason("");
   };
 
   // ─── Loading State ─────────────────────────────────────────────────
@@ -193,8 +228,8 @@ export default function ReturnsAdminPage() {
           <Skeleton className="h-9 w-48 mb-2" />
           <Skeleton className="h-5 w-72" />
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
-          {[...Array(3)].map((_, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-8">
+          {[...Array(5)].map((_, i) => (
             <Skeleton key={i} className="h-24" />
           ))}
         </div>
@@ -229,13 +264,22 @@ export default function ReturnsAdminPage() {
       </div>
 
       {/* Summary Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-4 mb-8">
         <div className="bg-card border border-border rounded-ui p-6">
           <div className="flex items-center gap-3">
             <Clock className="w-5 h-5 text-orange-600" />
             <div>
               <p className="text-sm text-muted-foreground">Pending Review</p>
               <p className="text-2xl font-bold text-foreground">{stats.pending}</p>
+            </div>
+          </div>
+        </div>
+        <div className="bg-card border border-border rounded-ui p-6">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600" />
+            <div>
+              <p className="text-sm text-muted-foreground">Overdue (&gt;30 days)</p>
+              <p className="text-2xl font-bold text-foreground">{stats.overdue}</p>
             </div>
           </div>
         </div>
@@ -257,6 +301,15 @@ export default function ReturnsAdminPage() {
             </div>
           </div>
         </div>
+        <div className="bg-card border border-border rounded-ui p-6">
+          <div className="flex items-center gap-3">
+            <AlertCircle className="w-5 h-5 text-red-600" />
+            <div>
+              <p className="text-sm text-muted-foreground">Denied</p>
+              <p className="text-2xl font-bold text-foreground">{stats.denied}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Filter Tabs */}
@@ -266,8 +319,10 @@ export default function ReturnsAdminPage() {
           [
             { key: "ALL", label: "All" },
             { key: "RETURN_REQUESTED", label: "Pending" },
+            { key: "OVERDUE", label: "Overdue" },
             { key: "RETURN_RECEIVED", label: "Received" },
             { key: "REFUNDED", label: "Refunded" },
+            { key: "RETURN_DENIED", label: "Denied" },
           ] as const
         ).map((tab) => (
           <button
@@ -284,9 +339,13 @@ export default function ReturnsAdminPage() {
               <span className="ml-1.5 opacity-75">
                 {tab.key === "RETURN_REQUESTED"
                   ? stats.pending
+                  : tab.key === "OVERDUE"
+                  ? stats.overdue
                   : tab.key === "RETURN_RECEIVED"
                   ? stats.received
-                  : stats.refunded}
+                  : tab.key === "REFUNDED"
+                  ? stats.refunded
+                  : stats.denied}
               </span>
             )}
           </button>
@@ -375,7 +434,7 @@ export default function ReturnsAdminPage() {
                   <span className="text-foreground text-sm">
                     {formatDate(order.returnRequestedAt)}
                   </span>
-                  <div>
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <Badge
                       className={`${
                         STATUS_COLORS[order.status as OrderStatus]
@@ -383,6 +442,13 @@ export default function ReturnsAdminPage() {
                     >
                       {STATUS_LABELS[order.status as OrderStatus]}
                     </Badge>
+                    {order.status === "RETURN_REQUESTED" &&
+                      isOverdue(order.returnRequestedAt) && (
+                        <Badge className="bg-red-100 text-red-700 border-none">
+                          <AlertTriangle className="w-3 h-3 mr-1" />
+                          Overdue
+                        </Badge>
+                      )}
                   </div>
                   <span className="font-medium text-foreground">
                     {formatCents(order.totalAmount)}
@@ -535,6 +601,16 @@ export default function ReturnsAdminPage() {
                               </span>
                             </div>
                           )}
+                          {order.returnDeniedAt && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Return denied
+                              </span>
+                              <span className="text-foreground">
+                                {formatDateTime(order.returnDeniedAt)}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </div>
 
@@ -586,21 +662,70 @@ export default function ReturnsAdminPage() {
                                   </Button>
                                 </div>
                               </div>
+                            ) : denyingOrderId === order.id ? (
+                              <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">
+                                  Provide a reason for denying this return:
+                                </p>
+                                <textarea
+                                  rows={3}
+                                  value={denyReason}
+                                  onChange={(e) => setDenyReason(e.target.value)}
+                                  placeholder="Enter reason for denial..."
+                                  className="w-full px-3 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm resize-none"
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() =>
+                                      handleAction(order.id, "deny_return", denyReason)
+                                    }
+                                    disabled={actionLoading === order.id || !denyReason.trim()}
+                                    variant="destructive"
+                                    size="sm"
+                                    className="flex-1"
+                                  >
+                                    {actionLoading === order.id
+                                      ? "Processing..."
+                                      : "Confirm Denial"}
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setDenyingOrderId(null);
+                                      setDenyReason("");
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
                             ) : (
-                              <Button
-                                onClick={() =>
-                                  setConfirmAction({
-                                    orderId: order.id,
-                                    action: "mark_received",
-                                    label: "Mark Received",
-                                  })
-                                }
-                                className="w-full"
-                                size="sm"
-                              >
-                                <CheckCircle className="w-4 h-4 mr-1" />
-                                Mark as Received
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() =>
+                                    setConfirmAction({
+                                      orderId: order.id,
+                                      action: "mark_received",
+                                      label: "Mark Received",
+                                    })
+                                  }
+                                  className="flex-1"
+                                  size="sm"
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Mark as Received
+                                </Button>
+                                <Button
+                                  onClick={() => setDenyingOrderId(order.id)}
+                                  variant="destructive"
+                                  className="flex-1"
+                                  size="sm"
+                                >
+                                  Deny Return
+                                </Button>
+                              </div>
                             )}
                           </div>
                         )}
@@ -653,21 +778,70 @@ export default function ReturnsAdminPage() {
                                   </Button>
                                 </div>
                               </div>
+                            ) : denyingOrderId === order.id ? (
+                              <div className="space-y-2">
+                                <p className="text-sm text-muted-foreground">
+                                  Provide a reason for denying this return:
+                                </p>
+                                <textarea
+                                  rows={3}
+                                  value={denyReason}
+                                  onChange={(e) => setDenyReason(e.target.value)}
+                                  placeholder="Enter reason for denial..."
+                                  className="w-full px-3 py-2 bg-background border border-input rounded-ui focus:outline-none focus:ring-2 focus:ring-ring text-foreground text-sm resize-none"
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    onClick={() =>
+                                      handleAction(order.id, "deny_return", denyReason)
+                                    }
+                                    disabled={actionLoading === order.id || !denyReason.trim()}
+                                    variant="destructive"
+                                    size="sm"
+                                    className="flex-1"
+                                  >
+                                    {actionLoading === order.id
+                                      ? "Processing..."
+                                      : "Confirm Denial"}
+                                  </Button>
+                                  <Button
+                                    onClick={() => {
+                                      setDenyingOrderId(null);
+                                      setDenyReason("");
+                                    }}
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1"
+                                  >
+                                    Cancel
+                                  </Button>
+                                </div>
+                              </div>
                             ) : (
-                              <Button
-                                onClick={() =>
-                                  setConfirmAction({
-                                    orderId: order.id,
-                                    action: "issue_refund",
-                                    label: "Issue Refund",
-                                  })
-                                }
-                                className="w-full"
-                                size="sm"
-                              >
-                                <DollarSign className="w-4 h-4 mr-1" />
-                                Issue Refund
-                              </Button>
+                              <div className="flex gap-2">
+                                <Button
+                                  onClick={() =>
+                                    setConfirmAction({
+                                      orderId: order.id,
+                                      action: "issue_refund",
+                                      label: "Issue Refund",
+                                    })
+                                  }
+                                  className="flex-1"
+                                  size="sm"
+                                >
+                                  <DollarSign className="w-4 h-4 mr-1" />
+                                  Issue Refund
+                                </Button>
+                                <Button
+                                  onClick={() => setDenyingOrderId(order.id)}
+                                  variant="destructive"
+                                  className="flex-1"
+                                  size="sm"
+                                >
+                                  Deny Return
+                                </Button>
+                              </div>
                             )}
                           </div>
                         )}
@@ -676,6 +850,25 @@ export default function ReturnsAdminPage() {
                           <div className="text-sm text-muted-foreground flex items-center gap-2">
                             <CheckCircle className="w-4 h-4 text-green-600" />
                             Refund completed
+                          </div>
+                        )}
+
+                        {order.status === "RETURN_DENIED" && (
+                          <div className="space-y-2">
+                            <div className="text-sm text-red-600 flex items-center gap-2">
+                              <AlertCircle className="w-4 h-4" />
+                              Return denied
+                            </div>
+                            {order.returnDeniedReason && (
+                              <div>
+                                <span className="text-muted-foreground text-sm block mb-1">
+                                  Reason
+                                </span>
+                                <p className="text-foreground bg-red-50 border border-red-200 rounded-ui p-2 text-sm">
+                                  {order.returnDeniedReason}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
